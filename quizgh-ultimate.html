@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>QuizGH — Ghana's #1 Live Quiz Tournament</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0d0f1a;
+  --surface:#13162b;
+  --card:#181d35;
+  --card2:#1e2440;
+  --border:#252d50;
+  --border2:#2e3860;
+  --gold:#ffc83d;
+  --gold2:#ffb300;
+  --gold3:#ff9500;
+  --green:#00d68f;
+  --green2:#00b377;
+  --red:#ff4757;
+  --red2:#cc2b3a;
+  --blue:#4d7cfe;
+  --blue2:#2d5ce8;
+  --purple:#a855f7;
+  --cyan:#06b6d4;
+  --orange:#f97316;
+  --pink:#ec4899;
+  --muted:#4a5580;
+  --text:#e8ecff;
+  --text2:#8892c4;
+  --text3:#5a658f;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+h1,h2,h3,h4,h5{font-family:'Nunito',sans-serif;}
+
+/* ===== NOISE OVERLAY ===== */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.5;}
+
+/* ===== LAYOUT ===== */
+.app{display:flex;min-height:100vh;position:relative;z-index:1;}
+.sidebar{width:272px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;overflow-y:auto;overflow-x:hidden;}
+.main{margin-left:272px;flex:1;display:flex;flex-direction:column;}
+
+/* ===== SIDEBAR ===== */
+.logo-wrap{padding:24px 20px 18px;border-bottom:1px solid var(--border);}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold3));display:grid;place-items:center;font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;color:#000;box-shadow:0 8px 24px rgba(255,200,61,.35);flex-shrink:0;}
+.logo-text{font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;letter-spacing:-.3px;}
+.logo-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.week-chip{display:flex;align-items:center;gap:8px;margin:14px 20px 0;background:rgba(0,214,143,.08);border:1px solid rgba(0,214,143,.2);border-radius:10px;padding:9px 14px;}
+.week-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.week-text{font-size:12px;font-weight:700;color:var(--green);}
+.week-sub{font-size:10px;color:var(--text2);margin-left:auto;}
+
+nav{padding:14px 12px;flex:1;}
+.nav-group{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);padding:12px 10px 6px;font-weight:700;}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;color:var(--text2);font-size:13.5px;font-weight:600;margin-bottom:2px;position:relative;transition:all .15s;user-select:none;}
+.nav-item:hover{background:rgba(255,255,255,.04);color:var(--text);}
+.nav-item.active{background:linear-gradient(135deg,rgba(77,124,254,.18),rgba(77,124,254,.08));color:#fff;border:1px solid rgba(77,124,254,.25);}
+.nav-item.active .nav-icon-wrap{background:var(--blue);color:#fff;box-shadow:0 4px 12px rgba(77,124,254,.4);}
+.nav-icon-wrap{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.05);display:grid;place-items:center;font-size:15px;transition:.15s;flex-shrink:0;}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px;background:var(--red);color:#fff;}
+.nav-badge.gold{background:var(--gold);color:#000;}
+.nav-badge.green{background:var(--green);color:#000;}
+
+.sidebar-user{padding:14px;border-top:1px solid var(--border);}
+.user-tile{display:flex;align-items:center;gap:11px;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:.15s;}
+.user-tile:hover{background:var(--card2);}
+.uavatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--purple));display:grid;place-items:center;font-weight:800;font-size:15px;color:#fff;flex-shrink:0;}
+.uname{font-size:13px;font-weight:700;}
+.urole{font-size:11px;color:var(--gold);font-weight:600;}
+.u-chevron{margin-left:auto;color:var(--text3);font-size:14px;}
+
+/* ===== TOPBAR ===== */
+.topbar{background:rgba(13,15,26,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 28px;height:66px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:80;}
+.page-title-wrap{display:flex;align-items:center;gap:16px;}
+.ham-btn{width:36px;height:36px;border-radius:9px;background:var(--card);border:1px solid var(--border);display:grid;place-items:center;cursor:pointer;font-size:16px;display:none;}
+.page-title{font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;}
+.breadcrumb{font-size:12px;color:var(--text2);margin-top:1px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.live-pill{display:flex;align-items:center;gap:7px;background:rgba(255,71,87,.12);border:1px solid rgba(255,71,87,.3);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;color:var(--red);cursor:pointer;}
+.top-icon{width:38px;height:38px;border-radius:10px;background:var(--card);border:1px solid var(--border);display:grid;place-items:center;cursor:pointer;font-size:17px;position:relative;transition:.15s;}
+.top-icon:hover{background:var(--card2);}
+.top-notif{position:absolute;top:5px;right:5px;width:9px;height:9px;background:var(--red);border-radius:50%;border:2px solid var(--bg);}
+
+/* ===== PAGE AREAS ===== */
+.page{display:none;padding:28px;animation:pageIn .22s ease;}
+.page.active{display:block;}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;}
+.ph-title{font-family:'Nunito',sans-serif;font-size:24px;font-weight:900;}
+.ph-sub{font-size:13px;color:var(--text2);margin-top:3px;}
+.ph-actions{display:flex;gap:10px;align-items:center;flex-shrink:0;}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Poppins',sans-serif;transition:all .15s;white-space:nowrap;}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 4px 16px rgba(77,124,254,.35);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(77,124,254,.45);}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold3));color:#000;box-shadow:0 4px 16px rgba(255,200,61,.3);}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(255,200,61,.4);}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green2));color:#000;box-shadow:0 4px 14px rgba(0,214,143,.3);}
+.btn-outline{background:transparent;color:var(--text2);border:1px solid var(--border2);font-weight:600;}
+.btn-outline:hover{background:var(--card2);color:var(--text);}
+.btn-danger{background:rgba(255,71,87,.15);color:var(--red);border:1px solid rgba(255,71,87,.3);font-weight:600;}
+.btn-danger:hover{background:rgba(255,71,87,.25);}
+.btn-warn{background:rgba(255,200,61,.12);color:var(--gold);border:1px solid rgba(255,200,61,.25);font-weight:600;}
+.btn-sm{padding:6px 14px;font-size:12px;border-radius:8px;}
+.btn-xs{padding:4px 10px;font-size:11px;border-radius:6px;}
+.btn-icon{width:36px;height:36px;padding:0;border-radius:9px;background:var(--card2);border:1px solid var(--border);color:var(--text2);}
+.btn-icon:hover{color:var(--text);}
+
+/* ===== STAT CARDS ===== */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 22px;position:relative;overflow:hidden;transition:.2s;}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+.stat-glow{position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;opacity:.12;filter:blur(20px);}
+.stat-icon-box{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;margin-bottom:14px;}
+.stat-label{font-size:12px;color:var(--text2);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+.stat-value{font-family:'Nunito',sans-serif;font-size:30px;font-weight:900;line-height:1;margin-bottom:8px;}
+.stat-meta{display:flex;align-items:center;gap:6px;font-size:12px;}
+.stat-change{display:flex;align-items:center;gap:3px;font-weight:700;font-size:11px;padding:2px 8px;border-radius:20px;}
+.sc-up{background:rgba(0,214,143,.12);color:var(--green);}
+.sc-down{background:rgba(255,71,87,.12);color:var(--red);}
+
+/* ===== CARDS ===== */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.card-title{font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;}
+.card-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+
+/* ===== GRID ===== */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:20px;}
+.g3r{display:grid;grid-template-columns:1fr 2fr;gap:18px;margin-bottom:20px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.mb20{margin-bottom:20px;}
+
+/* ===== BADGES ===== */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-gold{background:rgba(255,200,61,.15);color:var(--gold);}
+.badge-green{background:rgba(0,214,143,.12);color:var(--green);}
+.badge-red{background:rgba(255,71,87,.12);color:var(--red);}
+.badge-blue{background:rgba(77,124,254,.12);color:var(--blue);}
+.badge-purple{background:rgba(168,85,247,.12);color:var(--purple);}
+.badge-orange{background:rgba(249,115,22,.12);color:var(--orange);}
+.badge-cyan{background:rgba(6,182,212,.12);color:var(--cyan);}
+.badge-muted{background:rgba(255,255,255,.06);color:var(--text2);}
+.bd{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+/* ===== TABLE ===== */
+.tbl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;}
+thead{background:rgba(255,255,255,.03);}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);font-weight:700;padding:12px 16px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:13px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.td-name{font-weight:600;}
+.td-mono{font-family:monospace;font-size:12px;color:var(--text2);}
+.td-action{display:flex;gap:6px;}
+
+/* ===== PROGRESS ===== */
+.prog-wrap{margin-bottom:14px;}
+.prog-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px;}
+.prog-label{color:var(--text2);font-weight:600;}
+.prog-val{font-weight:700;}
+.prog-bar{height:7px;background:var(--border);border-radius:5px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:5px;transition:width 1.2s cubic-bezier(.34,1.56,.64,1);}
+.fill-gold{background:linear-gradient(90deg,var(--gold3),var(--gold));}
+.fill-green{background:linear-gradient(90deg,var(--green2),var(--green));}
+.fill-blue{background:linear-gradient(90deg,var(--blue2),var(--blue));}
+.fill-purple{background:linear-gradient(90deg,#7c3aed,var(--purple));}
+.fill-orange{background:linear-gradient(90deg,#ea580c,var(--orange));}
+.fill-red{background:linear-gradient(90deg,var(--red2),var(--red));}
+
+/* ===== COUNTDOWN ===== */
+.countdown-hero{background:linear-gradient(135deg,rgba(77,124,254,.12),rgba(168,85,247,.08));border:1px solid rgba(77,124,254,.2);border-radius:18px;padding:26px;margin-bottom:20px;position:relative;overflow:hidden;}
+.countdown-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(77,124,254,.15),transparent 70%);pointer-events:none;}
+.cd-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.cd-label::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--blue);animation:blink 1.2s infinite;}
+.cd-units{display:flex;align-items:center;gap:12px;}
+.cd-unit{text-align:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 20px;min-width:72px;}
+.cd-num{font-family:'Nunito',sans-serif;font-size:38px;font-weight:900;line-height:1;color:#fff;}
+.cd-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-top:4px;}
+.cd-sep{font-family:'Nunito',sans-serif;font-size:32px;font-weight:900;color:var(--blue);opacity:.5;padding-bottom:10px;}
+.cd-sat{font-size:13px;color:var(--text2);margin-top:14px;}
+.cd-sat strong{color:var(--text);}
+
+/* ===== LEADERBOARD ===== */
+.lb-item{display:flex;align-items:center;gap:13px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.lb-item:last-child{border-bottom:none;}
+.lb-rank{font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;width:28px;text-align:center;flex-shrink:0;}
+.rank-1{color:var(--gold);}
+.rank-2{color:#94a3b8;}
+.rank-3{color:#cd7f32;}
+.lb-av{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
+.lb-info{flex:1;min-width:0;}
+.lb-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lb-sub{font-size:11px;color:var(--text2);}
+.lb-score{font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;color:var(--gold);flex-shrink:0;}
+.lb-prize{font-size:11px;color:var(--green);font-weight:700;text-align:right;}
+
+/* ===== ACTIVITY ===== */
+.act-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.act-item:last-child{border-bottom:none;}
+.act-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:17px;flex-shrink:0;}
+.act-info{flex:1;}
+.act-name{font-size:13px;font-weight:600;}
+.act-time{font-size:11px;color:var(--text2);}
+.act-amt{font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;flex-shrink:0;}
+
+/* ===== CHART BARS ===== */
+.chart-wrap{display:flex;align-items:flex-end;gap:5px;height:140px;padding:0 4px 0;}
+.chart-bar-group{flex:1;display:flex;gap:2px;align-items:flex-end;}
+.chart-bar{flex:1;border-radius:4px 4px 0 0;min-height:4px;transition:height 1s cubic-bezier(.34,1.56,.64,1);}
+.bar-rev{background:linear-gradient(180deg,var(--gold),var(--gold3));}
+.bar-prize{background:linear-gradient(180deg,var(--blue),var(--blue2));}
+.chart-labels{display:flex;gap:5px;margin-top:8px;}
+.chart-lbl{flex:1;text-align:center;font-size:9px;color:var(--text3);}
+.chart-legend{display:flex;gap:16px;margin-top:10px;}
+.cl-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);}
+.cl-dot{width:10px;height:4px;border-radius:2px;}
+
+/* ===== TOURNAMENT PODIUM ===== */
+.podium-wrap{display:flex;align-items:flex-end;justify-content:center;gap:10px;padding:20px 0 0;}
+.pod{text-align:center;flex:1;max-width:160px;}
+.pod-av{width:56px;height:56px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-size:20px;font-weight:900;color:#fff;border:3px solid transparent;}
+.pod1 .pod-av{background:linear-gradient(135deg,#f59e0b,#fbbf24);border-color:var(--gold);box-shadow:0 0 24px rgba(255,200,61,.4);}
+.pod2 .pod-av{background:linear-gradient(135deg,#475569,#94a3b8);border-color:#94a3b8;}
+.pod3 .pod-av{background:linear-gradient(135deg,#92400e,#b45309);border-color:#cd7f32;}
+.pod-name{font-size:13px;font-weight:700;margin-bottom:3px;}
+.pod-pts{font-size:12px;color:var(--text2);}
+.pod-prize{font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;margin-top:5px;}
+.pod1 .pod-prize{color:var(--gold);}
+.pod2 .pod-prize{color:#94a3b8;}
+.pod3 .pod-prize{color:#cd7f32;}
+.pod-block{border-radius:10px 10px 0 0;margin-top:14px;}
+.pod1 .pod-block{height:80px;background:linear-gradient(180deg,rgba(255,200,61,.25),rgba(255,200,61,.05));}
+.pod2 .pod-block{height:56px;background:linear-gradient(180deg,rgba(148,163,184,.2),rgba(148,163,184,.04));}
+.pod3 .pod-block{height:40px;background:linear-gradient(180deg,rgba(205,127,50,.2),rgba(205,127,50,.04));}
+.pod-emoji{font-size:22px;margin-bottom:4px;}
+
+/* ===== LIVE QUIZ ===== */
+.quiz-hero{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:18px;}
+.quiz-progress-bar{height:5px;background:var(--border);border-radius:5px;overflow:hidden;margin-bottom:18px;}
+.quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:5px;transition:width .5s ease;}
+.q-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.q-num{font-size:12px;font-weight:700;color:var(--text2);}
+.q-timer-box{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:12px;padding:8px 16px;}
+.q-timer-num{font-family:'Nunito',sans-serif;font-size:28px;font-weight:900;color:var(--gold);line-height:1;transition:color .3s;}
+.q-score-box{text-align:right;}
+.q-score-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;}
+.q-score-val{font-family:'Nunito',sans-serif;font-size:22px;font-weight:900;color:var(--green);}
+.q-text{font-family:'Nunito',sans-serif;font-size:19px;font-weight:800;line-height:1.5;margin-bottom:24px;color:#fff;}
+.q-meta{display:flex;gap:8px;margin-bottom:16px;}
+.q-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.q-opt{padding:14px 18px;background:var(--card2);border:2px solid var(--border2);border-radius:14px;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s;display:flex;align-items:center;gap:12px;color:var(--text);}
+.q-opt:hover{border-color:var(--blue);background:rgba(77,124,254,.08);transform:translateY(-2px);}
+.q-opt.sel{border-color:var(--blue);background:rgba(77,124,254,.15);color:#fff;}
+.q-opt.correct{border-color:var(--green);background:rgba(0,214,143,.15);color:var(--green);}
+.q-opt.wrong{border-color:var(--red);background:rgba(255,71,87,.12);color:var(--red);}
+.q-opt-letter{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.08);display:grid;place-items:center;font-size:12px;font-weight:800;flex-shrink:0;transition:.2s;}
+.q-opt.sel .q-opt-letter{background:var(--blue);}
+.q-opt.correct .q-opt-letter{background:var(--green);color:#000;}
+.q-opt.wrong .q-opt-letter{background:var(--red);}
+
+/* ===== KAHOOT-STYLE ANSWER COLORS ===== */
+.opt-a{border-color:rgba(255,71,87,.3);} .opt-a:hover,.opt-a.sel{border-color:var(--red);background:rgba(255,71,87,.15)!important;}
+.opt-b{border-color:rgba(77,124,254,.3);} .opt-b:hover,.opt-b.sel{border-color:var(--blue);background:rgba(77,124,254,.15)!important;}
+.opt-c{border-color:rgba(0,214,143,.3);} .opt-c:hover,.opt-c.sel{border-color:var(--green);background:rgba(0,214,143,.12)!important;}
+.opt-d{border-color:rgba(255,200,61,.3);} .opt-d:hover,.opt-d.sel{border-color:var(--gold);background:rgba(255,200,61,.12)!important;}
+
+/* ===== PAYMENT ===== */
+.hubtel-card{background:linear-gradient(135deg,#0d1f0d,#0a1a1a);border:1px solid rgba(0,214,143,.2);border-radius:18px;padding:24px;position:relative;overflow:hidden;}
+.hubtel-card::after{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(0,214,143,.1),transparent 70%);pointer-events:none;}
+.hubtel-logo{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.hubtel-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#FF6B00,#FF9500);display:grid;place-items:center;font-weight:900;font-size:11px;color:#fff;letter-spacing:-.3px;}
+.hubtel-title{font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;}
+.hubtel-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green);font-weight:700;}
+.momo-fee{margin:16px 0;}
+.momo-fee-label{font-size:12px;color:var(--text2);margin-bottom:4px;}
+.momo-fee-val{font-family:'Nunito',sans-serif;font-size:44px;font-weight:900;color:#fff;}
+.momo-fee-curr{font-size:18px;color:var(--text2);}
+.momo-steps{margin-top:20px;display:flex;flex-direction:column;gap:0;}
+.momo-step{display:flex;align-items:flex-start;gap:12px;padding:10px 0;position:relative;}
+.momo-step:not(:last-child)::after{content:'';position:absolute;left:14px;top:38px;bottom:-2px;width:2px;background:rgba(0,214,143,.15);}
+.step-num{width:28px;height:28px;border-radius:50%;background:rgba(0,214,143,.15);border:1px solid rgba(0,214,143,.3);color:var(--green);display:grid;place-items:center;font-size:12px;font-weight:800;flex-shrink:0;}
+.step-text{font-size:13px;color:var(--text2);padding-top:4px;font-weight:500;}
+.step-text strong{color:var(--text);}
+
+/* ===== REFERRAL ===== */
+.ref-hero{background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(77,124,254,.08));border:1px solid rgba(168,85,247,.2);border-radius:18px;padding:28px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden;}
+.ref-hero::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:240px;height:240px;background:radial-gradient(circle,rgba(168,85,247,.15),transparent 70%);pointer-events:none;}
+.ref-code-label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--purple);font-weight:700;margin-bottom:12px;}
+.ref-code{font-family:'Nunito',sans-serif;font-size:36px;font-weight:900;letter-spacing:.18em;color:#fff;margin-bottom:8px;}
+.ref-copy{background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);color:var(--purple);padding:7px 20px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;display:inline-block;margin-bottom:20px;}
+.ref-copy:hover{background:rgba(168,85,247,.25);}
+.ref-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.ref-stat{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:14px;padding:16px;}
+.ref-stat-val{font-family:'Nunito',sans-serif;font-size:26px;font-weight:900;margin-bottom:4px;}
+.ref-stat-lbl{font-size:11px;color:var(--text2);font-weight:600;}
+
+/* ===== FORM ===== */
+.form-group{margin-bottom:16px;}
+.form-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--text2);margin-bottom:7px;display:block;}
+.form-input{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-size:13px;font-family:'Poppins',sans-serif;outline:none;transition:.15s;}
+.form-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(77,124,254,.12);}
+.form-input::placeholder{color:var(--text3);}
+.form-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a658f' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;appearance:none;cursor:pointer;}
+textarea.form-input{resize:vertical;min-height:88px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.form-hint{font-size:11px;color:var(--text3);margin-top:5px;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-info{flex:1;}
+.toggle-title{font-size:13px;font-weight:600;}
+.toggle-desc{font-size:12px;color:var(--text2);margin-top:2px;}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--border2);border-radius:24px;transition:.3s;}
+.toggle-slider::before{content:'';position:absolute;left:3px;bottom:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.3s;}
+.toggle input:checked+.toggle-slider{background:var(--green);}
+.toggle input:checked+.toggle-slider::before{transform:translateX(20px);}
+
+/* ===== TABS ===== */
+.tabs{display:flex;gap:3px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:22px;}
+.tab{padding:8px 20px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;color:var(--text2);transition:.15s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.active{background:var(--blue);color:#fff;box-shadow:0 3px 12px rgba(77,124,254,.35);}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;}
+
+/* ===== ALERTS ===== */
+.alert{border-radius:12px;padding:13px 16px;font-size:13px;display:flex;align-items:flex-start;gap:11px;margin-bottom:12px;}
+.al-icon{font-size:18px;flex-shrink:0;margin-top:-1px;}
+.al-body{flex:1;}
+.al-title{font-weight:700;margin-bottom:3px;}
+.al-text{opacity:.8;font-size:12px;}
+.al-warn{background:rgba(255,200,61,.08);border:1px solid rgba(255,200,61,.2);color:var(--gold);}
+.al-danger{background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);color:var(--red);}
+.al-success{background:rgba(0,214,143,.08);border:1px solid rgba(0,214,143,.2);color:var(--green);}
+.al-info{background:rgba(77,124,254,.08);border:1px solid rgba(77,124,254,.2);color:var(--blue);}
+
+/* ===== MODALS ===== */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.overlay.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:30px;width:520px;max-width:100%;max-height:90vh;overflow-y:auto;animation:modalIn .25s cubic-bezier(.34,1.56,.64,1);}
+.modal-lg{width:680px;}
+@keyframes modalIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+.modal-title{font-family:'Nunito',sans-serif;font-size:22px;font-weight:900;margin-bottom:4px;}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:26px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);}
+.modal-close-btn{position:absolute;top:20px;right:20px;}
+
+/* ===== ANTI-CHEAT ===== */
+.ac-rule{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.ac-rule:last-child{border-bottom:none;}
+.ac-rule-info{flex:1;}
+.ac-rule-name{font-size:13px;font-weight:700;}
+.ac-rule-desc{font-size:12px;color:var(--text2);margin-top:2px;}
+
+/* ===== FLAGGED ===== */
+.flag-item{display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,71,87,.05);border:1px solid rgba(255,71,87,.15);border-radius:12px;margin-bottom:10px;}
+.flag-icon{font-size:20px;flex-shrink:0;}
+.flag-info{flex:1;}
+.flag-player{font-size:13px;font-weight:700;color:var(--red);}
+.flag-reason{font-size:12px;color:var(--text2);margin-top:2px;}
+.flag-meta{font-size:11px;color:var(--text3);margin-top:4px;}
+.flag-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* ===== SMS LOG ===== */
+.sms-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.sms-item:last-child{border-bottom:none;}
+.sms-dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0;}
+.sms-d{background:var(--green);}
+.sms-f{background:var(--red);}
+.sms-p{background:var(--gold);animation:blink 1.4s infinite;}
+.sms-body{flex:1;}
+.sms-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;}
+.sms-to{font-size:13px;font-weight:700;}
+.sms-time{font-size:11px;color:var(--text3);}
+.sms-text{font-size:12px;color:var(--text2);}
+
+/* ===== AUDIT LOG ===== */
+.audit-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.audit-item:last-child{border-bottom:none;}
+.audit-icon{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-size:15px;flex-shrink:0;}
+.audit-body{flex:1;}
+.audit-action{font-size:13px;font-weight:600;}
+.audit-meta{font-size:11px;color:var(--text3);margin-top:2px;}
+.audit-user{font-size:11px;font-weight:700;color:var(--text2);}
+
+/* ===== KAHOOT COLOR BLOCKS (answer buttons large) ===== */
+.kh-opts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px;}
+.kh-btn{padding:22px 18px;border-radius:16px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;display:flex;align-items:center;gap:14px;color:#fff;border:none;transition:all .2s;position:relative;overflow:hidden;}
+.kh-btn::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,.08);opacity:0;transition:.15s;}
+.kh-btn:hover::before{opacity:1;}
+.kh-btn:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.kh-a{background:linear-gradient(135deg,#e53e3e,#c53030);}
+.kh-b{background:linear-gradient(135deg,#3182ce,#2b6cb0);}
+.kh-c{background:linear-gradient(135deg,#38a169,#2f855a);}
+.kh-d{background:linear-gradient(135deg,#d69e2e,#b7791f);}
+.kh-shape{font-size:24px;width:44px;height:44px;background:rgba(255,255,255,.15);border-radius:10px;display:grid;place-items:center;flex-shrink:0;}
+.kh-btn.correct{box-shadow:0 0 0 3px var(--green),0 8px 24px rgba(0,214,143,.3)!important;}
+.kh-btn.wrong{opacity:.5;}
+
+/* ===== REVENUE CARD ===== */
+.rev-big{font-family:'Nunito',sans-serif;font-size:52px;font-weight:900;line-height:1;margin-bottom:8px;}
+.rev-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+.rev-bd-item{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:14px;}
+.rev-bd-val{font-family:'Nunito',sans-serif;font-size:24px;font-weight:900;margin-bottom:3px;}
+.rev-bd-lbl{font-size:11px;color:var(--text2);font-weight:600;}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+
+/* ===== SEARCH ===== */
+.search-box{display:flex;align-items:center;gap:8px;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:9px 14px;min-width:220px;}
+.search-box input{background:none;border:none;outline:none;color:var(--text);font-size:13px;font-family:'Poppins',sans-serif;flex:1;min-width:80px;}
+.search-box input::placeholder{color:var(--text3);}
+.search-icon{color:var(--text3);font-size:15px;}
+
+/* ===== TOOLTIP ===== */
+.tooltip-wrap{position:relative;display:inline-block;}
+.tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1e2440;border:1px solid var(--border2);border-radius:8px;padding:6px 12px;font-size:12px;white-space:nowrap;color:var(--text);pointer-events:none;opacity:0;transition:.15s;z-index:100;}
+.tooltip-wrap:hover .tooltip{opacity:1;}
+
+/* ===== TIER CARDS ===== */
+.tier-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.tier-card{border-radius:16px;padding:20px;border:1px solid;position:relative;overflow:hidden;}
+.tier-regular{background:linear-gradient(135deg,rgba(0,214,143,.08),rgba(0,179,119,.04));border-color:rgba(0,214,143,.25);}
+.tier-vip{background:linear-gradient(135deg,rgba(77,124,254,.1),rgba(45,92,232,.05));border-color:rgba(77,124,254,.3);}
+.tier-elite{background:linear-gradient(135deg,rgba(255,200,61,.1),rgba(255,149,0,.05));border-color:rgba(255,200,61,.3);}
+.tier-icon{font-size:28px;margin-bottom:12px;}
+.tier-name{font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;margin-bottom:4px;}
+.tier-fee{font-size:13px;margin-bottom:14px;}
+.tier-slots-bar{height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px;}
+.tier-slots-fill{height:100%;border-radius:4px;}
+.tier-slots-txt{font-size:11px;color:var(--text2);}
+.tier-manage{display:flex;gap:6px;margin-top:14px;}
+
+/* ===== NOTIFICATION DROPDOWN ===== */
+.notif-panel{position:absolute;top:calc(100% + 10px);right:0;width:340px;background:var(--card);border:1px solid var(--border2);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:200;display:none;animation:pageIn .2s ease;}
+.notif-panel.open{display:block;}
+.notif-hd{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.notif-hd-title{font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;}
+.notif-list{max-height:360px;overflow-y:auto;}
+.notif-item{display:flex;gap:11px;padding:13px 18px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:.15s;}
+.notif-item:hover{background:rgba(255,255,255,.03);}
+.notif-item.unread{background:rgba(77,124,254,.04);}
+.notif-av{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:17px;flex-shrink:0;}
+.notif-body{flex:1;}
+.notif-msg{font-size:12px;font-weight:600;line-height:1.5;}
+.notif-time{font-size:11px;color:var(--text3);margin-top:3px;}
+.notif-unread-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);margin-top:4px;flex-shrink:0;}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1200px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:900px){.g2,.g3,.g3r{grid-template-columns:1fr;}.q-opts,.kh-opts{grid-template-columns:1fr;}.tier-cards{grid-template-columns:1fr;}}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:.3s;}
+  .sidebar.open{transform:none;}
+  .main{margin-left:0;}
+  .ham-btn{display:grid;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:500px){.stats-row{grid-template-columns:1fr;}.cd-units{flex-wrap:wrap;justify-content:center;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════════════════════ SIDEBAR ══════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo-wrap">
+    <div class="logo">
+      <div class="logo-icon">Q</div>
+      <div>
+        <div class="logo-text">Quiz<span style="color:var(--gold)">GH</span></div>
+        <div class="logo-sub">🇬🇭 Ghana Tournament Platform</div>
+      </div>
+    </div>
+  </div>
+  <div class="week-chip">
+    <div class="week-dot"></div>
+    <div>
+      <div class="week-text">WEEK 24 ACTIVE</div>
+    </div>
+    <div class="week-sub">Sat 19:00</div>
+  </div>
+
+  <nav>
+    <div class="nav-group">Overview</div>
+    <div class="nav-item active" onclick="navigate('dashboard',this)">
+      <div class="nav-icon-wrap">📊</div> Dashboard
+    </div>
+    <div class="nav-item" onclick="navigate('tournament',this)">
+      <div class="nav-icon-wrap">🏆</div> Tournaments
+    </div>
+    <div class="nav-item" onclick="navigate('live',this)">
+      <div class="nav-icon-wrap">⚡</div> Live Quiz Engine
+      <span class="nav-badge">LIVE</span>
+    </div>
+
+    <div class="nav-group">Admin Control</div>
+    <div class="nav-item" onclick="navigate('participants',this)">
+      <div class="nav-icon-wrap">👥</div> Participants
+    </div>
+    <div class="nav-item" onclick="navigate('payments',this)">
+      <div class="nav-icon-wrap">💳</div> Payments & MoMo
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="navigate('questions',this)">
+      <div class="nav-icon-wrap">🗂️</div> Question Bank
+    </div>
+    <div class="nav-item" onclick="navigate('prizes',this)">
+      <div class="nav-icon-wrap">🎁</div> Prize Pool
+    </div>
+
+    <div class="nav-group">Engagement</div>
+    <div class="nav-item" onclick="navigate('referral',this)">
+      <div class="nav-icon-wrap">🔗</div> Referral System
+    </div>
+    <div class="nav-item" onclick="navigate('sms',this)">
+      <div class="nav-icon-wrap">📱</div> SMS Campaigns
+      <span class="nav-badge green">7</span>
+    </div>
+
+    <div class="nav-group">Security & Audit</div>
+    <div class="nav-item" onclick="navigate('anticheat',this)">
+      <div class="nav-icon-wrap">🛡️</div> Anti-Cheat System
+    </div>
+    <div class="nav-item" onclick="navigate('audit',this)">
+      <div class="nav-icon-wrap">📋</div> Audit Logs
+    </div>
+    <div class="nav-item" onclick="navigate('analytics',this)">
+      <div class="nav-icon-wrap">📈</div> Analytics
+    </div>
+
+    <div class="nav-group">Configuration</div>
+    <div class="nav-item" onclick="navigate('settings',this)">
+      <div class="nav-icon-wrap">⚙️</div> Settings
+    </div>
+  </nav>
+
+  <div class="sidebar-user">
+    <div class="user-tile">
+      <div class="uavatar">SA</div>
+      <div class="uinfo">
+        <div class="uname">Super Admin</div>
+        <div class="urole">● Super Admin</div>
+      </div>
+      <div class="u-chevron">⌄</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══════════════════════ MAIN ══════════════════════ -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="page-title-wrap">
+      <button class="ham-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <div>
+        <div class="page-title" id="pageTitle">Dashboard</div>
+        <div class="breadcrumb" id="breadcrumb">QuizGH Admin / Overview</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="live-pill" onclick="navigate('live',null)">
+        <div class="week-dot"></div> LIVE NOW · Sat 19:00
+      </div>
+      <div style="position:relative;">
+        <div class="top-icon" id="notifBtn" onclick="toggleNotif()">🔔<div class="top-notif"></div></div>
+        <div class="notif-panel" id="notifPanel">
+          <div class="notif-hd"><div class="notif-hd-title">Notifications</div><span class="badge badge-blue">3 new</span></div>
+          <div class="notif-list" id="notif-list"></div>
+        </div>
+      </div>
+      <div class="top-icon">💬</div>
+      <div class="top-icon" onclick="navigate('settings',null)">⚙️</div>
+    </div>
+  </div>
+
+  <!-- ════════════ DASHBOARD ════════════ -->
+  <div class="page active" id="page-dashboard">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-glow" style="background:var(--gold);"></div>
+        <div class="stat-icon-box" style="background:rgba(255,200,61,.12);">💰</div>
+        <div class="stat-label">Weekly Revenue</div>
+        <div class="stat-value" style="color:var(--gold);">GHS 4,820</div>
+        <div class="stat-meta"><span class="stat-change sc-up">▲ 18.4%</span><span style="color:var(--text3);font-size:11px;">vs last week</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-glow" style="background:var(--green);"></div>
+        <div class="stat-icon-box" style="background:rgba(0,214,143,.1);">👥</div>
+        <div class="stat-label">Registered Players</div>
+        <div class="stat-value" style="color:var(--green);">241</div>
+        <div class="stat-meta"><span class="stat-change sc-up">▲ 34 new</span><span style="color:var(--text3);font-size:11px;">this week</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-glow" style="background:var(--blue);"></div>
+        <div class="stat-icon-box" style="background:rgba(77,124,254,.1);">✅</div>
+        <div class="stat-label">Approved Payments</div>
+        <div class="stat-value" style="color:var(--blue);">218</div>
+        <div class="stat-meta"><span class="badge badge-gold">3 pending</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-glow" style="background:var(--purple);"></div>
+        <div class="stat-icon-box" style="background:rgba(168,85,247,.1);">🎁</div>
+        <div class="stat-label">Prize Pool (Week 24)</div>
+        <div class="stat-value" style="color:var(--purple);">GHS 3,374</div>
+        <div class="stat-meta"><span style="color:var(--text3);font-size:11px;">70% of revenue</span></div>
+      </div>
+    </div>
+
+    <!-- Row 1 -->
+    <div class="g3">
+      <div>
+        <!-- Countdown -->
+        <div class="countdown-hero mb20">
+          <div class="cd-label">Next Tournament Starts In</div>
+          <div class="cd-units">
+            <div class="cd-unit"><div class="cd-num" id="cd-d">02</div><div class="cd-lbl">Days</div></div>
+            <div class="cd-sep">:</div>
+            <div class="cd-unit"><div class="cd-num" id="cd-h">14</div><div class="cd-lbl">Hrs</div></div>
+            <div class="cd-sep">:</div>
+            <div class="cd-unit"><div class="cd-num" id="cd-m">37</div><div class="cd-lbl">Min</div></div>
+            <div class="cd-sep">:</div>
+            <div class="cd-unit"><div class="cd-num" id="cd-s">22</div><div class="cd-lbl">Sec</div></div>
+          </div>
+          <div class="cd-sat">📅 <strong>Saturday</strong> — 19:00 GMT · Week 24 Tournament</div>
+        </div>
+
+        <!-- Tiers -->
+        <div class="card mb20">
+          <div class="card-hd"><div class="card-title">🏅 Tournament Tiers — Week 24</div>
+            <button class="btn btn-gold btn-sm" onclick="openModal('addTournament')">+ New Tier</button>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-head"><span class="prog-label">🥉 Regular — GHS 20</span><span class="prog-val">142 / 200</span></div>
+            <div class="prog-bar"><div class="prog-fill fill-green" style="width:71%"></div></div>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-head"><span class="prog-label">🥈 VIP — GHS 50</span><span class="prog-val">63 / 100</span></div>
+            <div class="prog-bar"><div class="prog-fill fill-blue" style="width:63%"></div></div>
+          </div>
+          <div class="prog-wrap">
+            <div class="prog-head"><span class="prog-label">🥇 Elite — GHS 100</span><span class="prog-val">13 / 50</span></div>
+            <div class="prog-bar"><div class="prog-fill fill-gold" style="width:26%"></div></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px;">
+            <button class="btn btn-primary btn-sm">Open Registration</button>
+            <button class="btn btn-outline btn-sm" onclick="navigate('tournament',null)">Manage Tiers →</button>
+          </div>
+        </div>
+
+        <!-- Revenue Chart -->
+        <div class="card">
+          <div class="card-hd">
+            <div><div class="card-title">📊 Revenue Chart (8 Weeks)</div></div>
+            <select class="form-input form-select" style="width:130px;font-size:12px;padding:7px 12px;">
+              <option>8 Weeks</option><option>4 Weeks</option><option>3 Months</option>
+            </select>
+          </div>
+          <div class="chart-wrap" id="dash-chart"></div>
+          <div class="chart-labels" id="dash-chart-labels"></div>
+          <div class="chart-legend">
+            <div class="cl-item"><div class="cl-dot" style="background:var(--gold);"></div> Revenue</div>
+            <div class="cl-item"><div class="cl-dot" style="background:var(--blue);"></div> Prize Pool</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Leaderboard + Activity -->
+      <div>
+        <div class="card mb20">
+          <div class="card-hd">
+            <div><div class="card-title">🏅 Top Players</div><div class="card-sub">Week 23 Final</div></div>
+            <button class="btn btn-outline btn-sm" onclick="navigate('tournament',null)">Full →</button>
+          </div>
+          <div id="dash-lb"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-title">⚡ Recent Activity</div></div>
+          <div id="dash-activity"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ TOURNAMENT ════════════ -->
+  <div class="page" id="page-tournament">
+    <div class="page-header">
+      <div><div class="ph-title">🏆 Tournaments</div><div class="ph-sub">Manage weekly tournament tiers and results</div></div>
+      <div class="ph-actions">
+        <button class="btn btn-outline btn-sm">📤 Export CSV</button>
+        <button class="btn btn-gold" onclick="openModal('addTournament')">+ Create Tournament</button>
+      </div>
+    </div>
+
+    <div class="tier-cards">
+      <div class="tier-card tier-regular">
+        <div class="tier-icon">🥉</div>
+        <div class="tier-name">Regular</div>
+        <div class="tier-fee" style="color:var(--green);">GHS 20.00 entry fee</div>
+        <div class="tier-slots-bar"><div class="tier-slots-fill fill-green" style="width:71%"></div></div>
+        <div class="tier-slots-txt">142 / 200 slots filled</div>
+        <div class="tier-manage">
+          <button class="btn btn-sm btn-outline">Edit</button>
+          <button class="btn btn-sm btn-danger">Close Reg.</button>
+        </div>
+      </div>
+      <div class="tier-card tier-vip">
+        <div class="tier-icon">🥈</div>
+        <div class="tier-name">VIP</div>
+        <div class="tier-fee" style="color:var(--blue);">GHS 50.00 entry fee</div>
+        <div class="tier-slots-bar"><div class="tier-slots-fill fill-blue" style="width:63%"></div></div>
+        <div class="tier-slots-txt">63 / 100 slots filled</div>
+        <div class="tier-manage">
+          <button class="btn btn-sm btn-outline">Edit</button>
+          <button class="btn btn-sm btn-warn">Pause</button>
+        </div>
+      </div>
+      <div class="tier-card tier-elite">
+        <div class="tier-icon">🥇</div>
+        <div class="tier-name">Elite</div>
+        <div class="tier-fee" style="color:var(--gold);">GHS 100.00 entry fee</div>
+        <div class="tier-slots-bar"><div class="tier-slots-fill fill-gold" style="width:26%"></div></div>
+        <div class="tier-slots-txt">13 / 50 slots filled</div>
+        <div class="tier-manage">
+          <button class="btn btn-sm btn-outline">Edit</button>
+          <button class="btn btn-sm btn-warn">Boost Slots</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Podium -->
+    <div class="card mb20">
+      <div class="card-hd"><div class="card-title">🎖️ Week 23 — Final Podium</div>
+        <button class="btn btn-gold btn-sm" onclick="openModal('announceWinners')">📢 Announce Winners</button>
+      </div>
+      <div class="podium-wrap" id="tour-podium"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">📋 Full Leaderboard — Week 23</div>
+        <div style="display:flex;gap:8px;">
+          <div class="search-box"><span class="search-icon">🔍</span><input placeholder="Search player..."/></div>
+          <select class="form-input form-select" style="width:120px;font-size:12px;padding:7px 12px;"><option>All Tiers</option><option>Regular</option><option>VIP</option><option>Elite</option></select>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table id="full-lb-table"></table></div>
+    </div>
+  </div>
+
+  <!-- ════════════ LIVE QUIZ ════════════ -->
+  <div class="page" id="page-live">
+    <div class="page-header">
+      <div><div class="ph-title">⚡ Live Quiz Engine</div><div class="ph-sub">Real-time quiz control and monitoring</div></div>
+      <div class="ph-actions">
+        <span class="badge badge-red" style="font-size:13px;padding:7px 16px;"><span class="bd"></span> LIVE · 218 Active</span>
+        <button class="btn btn-danger" onclick="openModal('pauseQuiz')">⏸ Pause Quiz</button>
+        <button class="btn btn-outline btn-sm" onclick="openModal('endQuiz')">🔚 End Early</button>
+      </div>
+    </div>
+
+    <!-- Question Card - Kahoot style -->
+    <div class="quiz-hero">
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="qprog" style="width:20%"></div></div>
+      <div class="q-header">
+        <div>
+          <div class="q-num">Question <strong id="q-cur">3</strong> of <strong>15</strong></div>
+          <div class="q-meta" style="margin-top:6px;">
+            <span class="badge badge-cyan">🌍 Geography</span>
+            <span class="badge badge-gold">⚡ Medium · 150pts</span>
+            <span class="badge badge-purple">⏱ Speed Bonus Active</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div class="q-timer-box">
+            <span style="font-size:14px;color:var(--text2);">⏱</span>
+            <div class="q-timer-num" id="liveTimer">25</div>
+            <span style="font-size:12px;color:var(--text2);">sec</span>
+          </div>
+          <div class="q-score-box">
+            <div class="q-score-label">Your Score</div>
+            <div class="q-score-val">1,840</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-text">Which region of Ghana is known as the "Garden City of West Africa" and serves as the country's second-largest city?</div>
+
+      <div class="kh-opts">
+        <div class="kh-btn kh-a" onclick="pickAnswer(this,false)">
+          <div class="kh-shape">▲</div> Accra
+        </div>
+        <div class="kh-btn kh-b" onclick="pickAnswer(this,false)">
+          <div class="kh-shape">◆</div> Tamale
+        </div>
+        <div class="kh-btn kh-c" onclick="pickAnswer(this,true)">
+          <div class="kh-shape">●</div> Kumasi
+        </div>
+        <div class="kh-btn kh-d" onclick="pickAnswer(this,false)">
+          <div class="kh-shape">■</div> Cape Coast
+        </div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">⚡ Live Rankings</div><span class="badge badge-red"><span class="bd"></span> Real-Time</span></div>
+        <div id="live-lb"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">🛡️ Anti-Cheat Monitor</div></div>
+        <div class="al-success alert"><span class="al-icon">✅</span><div class="al-body"><div class="al-title">All Systems Clear</div><div class="al-text">No active violations this session. 3 warnings issued.</div></div></div>
+        <div class="al-warn alert"><span class="al-icon">⚠️</span><div class="al-body"><div class="al-title">Tab Switch: kwame_99</div><div class="al-text">Switched browser tab 2× — flagged, 1 more = auto-disqualify.</div></div></div>
+        <div style="font-size:13px;margin-top:8px;">
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">Active Players <strong>218</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">Answered Q3 <strong style="color:var(--green)">201 (92%)</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">Flagged <strong style="color:var(--gold)">3</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;">Disqualified <strong style="color:var(--red)">1</strong></div>
+        </div>
+        <button class="btn btn-danger btn-sm" style="margin-top:14px;width:100%;" onclick="navigate('anticheat',null)">View Full Anti-Cheat Log →</button>
+      </div>
+    </div>
+
+    <!-- Admin Quiz Controls -->
+    <div class="card">
+      <div class="card-hd"><div class="card-title">🎮 Admin Quiz Controls</div></div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <button class="btn btn-primary">⏭ Skip Question</button>
+        <button class="btn btn-warn">⏸ Pause for 30s</button>
+        <button class="btn btn-outline">🔀 Shuffle Next</button>
+        <button class="btn btn-outline">📢 Broadcast Message</button>
+        <button class="btn btn-outline">⏱ Add 10 Seconds</button>
+        <button class="btn btn-danger">🚫 Disqualify Selected</button>
+        <button class="btn btn-outline" onclick="openModal('injectQ')">💉 Inject Question</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ PARTICIPANTS ════════════ -->
+  <div class="page" id="page-participants">
+    <div class="page-header">
+      <div><div class="ph-title">👥 Participants</div><div class="ph-sub">241 registered · 218 approved · 3 pending</div></div>
+      <div class="ph-actions">
+        <button class="btn btn-outline btn-sm">📤 Export CSV</button>
+        <button class="btn btn-gold" onclick="openModal('addParticipant')">+ Register Participant</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd" style="flex-wrap:wrap;gap:10px;">
+        <div class="search-box"><span class="search-icon">🔍</span><input placeholder="Name, username, phone..."/></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <select class="form-input form-select" style="width:120px;font-size:12px;padding:7px 12px;"><option>All Tiers</option><option>Regular</option><option>VIP</option><option>Elite</option></select>
+          <select class="form-input form-select" style="width:130px;font-size:12px;padding:7px 12px;"><option>All Statuses</option><option>Approved</option><option>Pending</option><option>Banned</option></select>
+          <select class="form-input form-select" style="width:130px;font-size:12px;padding:7px 12px;"><option>All Regions</option><option>Greater Accra</option><option>Ashanti</option><option>Western</option></select>
+        </div>
+      </div>
+      <div class="tbl-wrap" style="margin-top:16px;"><table id="participants-tbl"></table></div>
+    </div>
+  </div>
+
+  <!-- ════════════ PAYMENTS ════════════ -->
+  <div class="page" id="page-payments">
+    <div class="page-header">
+      <div><div class="ph-title">💳 Payments & Hubtel MoMo</div><div class="ph-sub">Real-time payment verification and approval</div></div>
+      <div class="ph-actions">
+        <button class="btn btn-outline btn-sm">📤 Export</button>
+        <button class="btn btn-gold" onclick="openModal('manualPayment')">+ Log Manual Payment</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon-box" style="background:rgba(255,200,61,.1);">💰</div><div class="stat-label">Total Collected</div><div class="stat-value" style="color:var(--gold);font-size:24px;">GHS 4,820</div><div class="stat-meta"><span class="badge badge-green">This Week</span></div></div>
+      <div class="stat-card"><div class="stat-icon-box" style="background:rgba(0,214,143,.1);">✅</div><div class="stat-label">Approved</div><div class="stat-value" style="color:var(--green);font-size:24px;">218</div><div class="stat-meta" style="color:var(--text2);font-size:11px;">GHS 4,360 collected</div></div>
+      <div class="stat-card"><div class="stat-icon-box" style="background:rgba(255,200,61,.1);">⏳</div><div class="stat-label">Pending</div><div class="stat-value" style="color:var(--gold);font-size:24px;">3</div><div class="stat-meta"><span class="badge badge-gold">Needs Review</span></div></div>
+      <div class="stat-card"><div class="stat-icon-box" style="background:rgba(255,71,87,.1);">❌</div><div class="stat-label">Failed</div><div class="stat-value" style="color:var(--red);font-size:24px;">6</div><div class="stat-meta" style="color:var(--text2);font-size:11px;">GHS 120 lost</div></div>
+    </div>
+
+    <div class="g3r">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">⏳ Pending Approval</div><span class="badge badge-gold">3</span></div>
+        <div id="pending-list"></div>
+      </div>
+      <div class="hubtel-card">
+        <div class="hubtel-logo">
+          <div class="hubtel-icon">HUBTEL</div>
+          <div>
+            <div class="hubtel-title">Hubtel MoMo</div>
+            <div class="hubtel-status"><div class="week-dot"></div> Connected & Verified</div>
+          </div>
+        </div>
+        <div class="momo-fee">
+          <div class="momo-fee-label">Current Entry Fee (Regular)</div>
+          <div><span class="momo-fee-curr">GHS </span><span class="momo-fee-val">20.00</span></div>
+        </div>
+        <div class="momo-steps">
+          <div class="momo-step"><div class="step-num">1</div><div class="step-text">Participant clicks <strong>"Pay Entry Fee"</strong> on registration page</div></div>
+          <div class="momo-step"><div class="step-num">2</div><div class="step-text">Backend calls <strong>Hubtel /v1/merchantpayments/initiate</strong></div></div>
+          <div class="momo-step"><div class="step-num">3</div><div class="step-text"><strong>MoMo prompt</strong> pushed to participant's phone</div></div>
+          <div class="momo-step"><div class="step-num">4</div><div class="step-text">Hubtel sends <strong>webhook callback</strong> → server verifies</div></div>
+          <div class="momo-step"><div class="step-num">5</div><div class="step-text">Admin reviews → <strong>Approve</strong> → SMS sent automatically</div></div>
+        </div>
+        <button class="btn btn-green" style="width:100%;margin-top:18px;" onclick="openModal('testHubtel')">🔌 Test Hubtel Connection</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd" style="flex-wrap:wrap;gap:10px;">
+        <div class="card-title">All Transactions</div>
+        <div style="display:flex;gap:8px;">
+          <select class="form-input form-select" style="width:130px;font-size:12px;padding:7px 12px;"><option>All Statuses</option><option>Approved</option><option>Pending</option><option>Failed</option></select>
+          <select class="form-input form-select" style="width:120px;font-size:12px;padding:7px 12px;"><option>All Tiers</option><option>Regular</option><option>VIP</option><option>Elite</option></select>
+        </div>
+      </div>
+      <div class="tbl-wrap" style="margin-top:14px;"><table id="all-pmts"></table></div>
+    </div>
+  </div>
+
+  <!-- ════════════ QUESTIONS ════════════ -->
+  <div class="page" id="page-questions">
+    <div class="page-header">
+      <div><div class="ph-title">🗂️ Question Bank</div><div class="ph-sub">120 questions · 6 categories · version controlled</div></div>
+      <div class="ph-actions">
+        <button class="btn btn-outline btn-sm">📤 Export</button>
+        <button class="btn btn-outline btn-sm">📥 Import CSV</button>
+        <button class="btn btn-gold" onclick="openModal('addQuestion')">+ Add Question</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'qtab-all')">All Questions (120)</div>
+      <div class="tab" onclick="switchTab(this,'qtab-active')">Active (98)</div>
+      <div class="tab" onclick="switchTab(this,'qtab-archived')">Archived (22)</div>
+      <div class="tab" onclick="switchTab(this,'qtab-pending')">Pending Review (4)</div>
+    </div>
+
+    <div class="tab-pane active" id="qtab-all">
+      <div class="card">
+        <div class="card-hd" style="flex-wrap:wrap;gap:10px;">
+          <div class="search-box"><span class="search-icon">🔍</span><input placeholder="Search questions..."/></div>
+          <div style="display:flex;gap:8px;">
+            <select class="form-input form-select" style="width:140px;font-size:12px;padding:7px 12px;"><option>All Categories</option><option>Ghana History</option><option>Geography</option><option>Science</option><option>Math</option><option>General</option></select>
+            <select class="form-input form-select" style="width:120px;font-size:12px;padding:7px 12px;"><option>All Difficulty</option><option>Easy</option><option>Medium</option><option>Hard</option></select>
+          </div>
+        </div>
+        <div class="tbl-wrap" style="margin-top:14px;"><table id="questions-tbl"></table></div>
+      </div>
+    </div>
+    <div class="tab-pane" id="qtab-active"><div class="card"><div style="padding:20px;text-align:center;color:var(--text2);">Filter active questions here</div></div></div>
+    <div class="tab-pane" id="qtab-archived"><div class="card"><div style="padding:20px;text-align:center;color:var(--text2);">Archived questions — soft deleted, restorable</div></div></div>
+    <div class="tab-pane" id="qtab-pending"><div class="card"><div style="padding:20px;text-align:center;color:var(--text2);">4 questions awaiting admin review</div></div></div>
+  </div>
+
+  <!-- ════════════ PRIZES ════════════ -->
+  <div class="page" id="page-prizes">
+    <div class="page-header">
+      <div><div class="ph-title">🎁 Prize Pool Management</div><div class="ph-sub">Configure and distribute weekly prizes</div></div>
+      <div class="ph-actions">
+        <button class="btn btn-outline btn-sm">📄 Export Report</button>
+        <button class="btn btn-gold" onclick="openModal('initPayout')">💸 Initiate Payouts</button>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">⚙️ Prize Configuration</div></div>
+        <div class="form-group"><label class="form-label">Prize Model</label>
+          <select class="form-input form-select"><option>% of Weekly Revenue (Recommended)</option><option>Fixed Amount per Tier</option></select></div>
+        <div class="form-group"><label class="form-label">Prize Pool % (of total revenue)</label>
+          <input class="form-input" type="number" value="70"/><div class="form-hint">Platform keeps 30% → GHS 1,446 this week</div></div>
+        <div style="border-top:1px solid var(--border);margin:18px 0;padding-top:18px;">
+          <div class="form-label" style="display:block;margin-bottom:14px;">Prize Distribution</div>
+          <div class="form-row3">
+            <div class="form-group"><label class="form-label">🥇 1st %</label><input class="form-input" type="number" value="50"/></div>
+            <div class="form-group"><label class="form-label">🥈 2nd %</label><input class="form-input" type="number" value="30"/></div>
+            <div class="form-group"><label class="form-label">🥉 3rd %</label><input class="form-input" type="number" value="20"/></div>
+          </div>
+        </div>
+        <button class="btn btn-primary">Save Configuration</button>
+      </div>
+      <div class="card" style="background:linear-gradient(135deg,rgba(255,200,61,.08),rgba(255,149,0,.04));border-color:rgba(255,200,61,.2);">
+        <div class="card-hd"><div class="card-title" style="color:var(--gold);">💰 Week 24 Prize Breakdown</div></div>
+        <div style="text-align:center;padding:16px 0 20px;">
+          <div style="font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Total Pool</div>
+          <div style="font-family:'Nunito',sans-serif;font-size:56px;font-weight:900;color:var(--gold);line-height:1.1;margin:8px 0;">GHS 3,374</div>
+          <div style="font-size:12px;color:var(--text2);">From GHS 4,820 weekly revenue (70%)</div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+            <div><div style="font-weight:700;">🥇 1st Place</div><div style="font-size:12px;color:var(--text2);">50% · via Hubtel MoMo</div></div>
+            <div style="font-family:'Nunito',sans-serif;font-size:24px;font-weight:900;color:var(--gold);">GHS 1,687</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+            <div><div style="font-weight:700;">🥈 2nd Place</div><div style="font-size:12px;color:var(--text2);">30% · via Hubtel MoMo</div></div>
+            <div style="font-family:'Nunito',sans-serif;font-size:24px;font-weight:900;color:#94a3b8;">GHS 1,012</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;">
+            <div><div style="font-weight:700;">🥉 3rd Place</div><div style="font-size:12px;color:var(--text2);">20% · via Hubtel MoMo</div></div>
+            <div style="font-family:'Nunito',sans-serif;font-size:24px;font-weight:900;color:#cd7f32;">GHS 675</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="btn btn-gold" style="flex:1;" onclick="openModal('initPayout')">💸 Pay All Winners</button>
+          <button class="btn btn-outline btn-sm">📄 PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ REFERRAL ════════════ -->
+  <div class="page" id="page-referral">
+    <div class="page-header">
+      <div><div class="ph-title">🔗 Referral System</div><div class="ph-sub">Track referrals and manage commissions</div></div>
+      <div class="ph-actions">
+        <button class="btn btn-outline btn-sm">📤 Export</button>
+        <button class="btn btn-gold" onclick="openModal('withdraw')">💸 Process Withdrawals</button>
+      </div>
+    </div>
+    <div class="ref-hero">
+      <div class="ref-code-label">Your Admin Referral Code</div>
+      <div class="ref-code">QUIZGH-ADM01</div>
+      <div class="ref-copy" onclick="this.textContent='✓ Copied!'">📋 Copy Link</div>
+      <div style="font-size:13px;color:var(--text2);">Share code. Earn <strong style="color:var(--green)">GHS 5</strong> per approved referred participant.</div>
+      <div class="ref-stats">
+        <div class="ref-stat"><div class="ref-stat-val" style="color:var(--gold);">47</div><div class="ref-stat-lbl">Total Referrals</div></div>
+        <div class="ref-stat"><div class="ref-stat-val" style="color:var(--green);">GHS 235</div><div class="ref-stat-lbl">Total Earned</div></div>
+        <div class="ref-stat"><div class="ref-stat-val" style="color:var(--blue);">GHS 85</div><div class="ref-stat-lbl">Withdrawable</div></div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Referral Activity</div></div>
+        <div class="tbl-wrap"><table id="ref-tbl"></table></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Withdrawal Settings</div></div>
+        <div class="form-group"><label class="form-label">Min Withdrawal (GHS)</label><input class="form-input" type="number" value="50"/></div>
+        <div class="form-group"><label class="form-label">Commission per Referral (GHS)</label><input class="form-input" type="number" value="5"/></div>
+        <div class="form-group"><label class="form-label">Payout Method</label>
+          <select class="form-input form-select"><option>Hubtel MoMo (Auto)</option><option>Manual Admin Approval</option></select></div>
+        <button class="btn btn-primary">Save Referral Settings</button>
+        <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+          <div class="card-title" style="margin-bottom:12px;">Pending Withdrawals</div>
+          <div class="al-warn alert"><span class="al-icon">⏳</span><div class="al-body"><div class="al-title">2 withdrawal requests pending</div><div class="al-text">Total: GHS 150.00 via Hubtel MoMo</div></div></div>
+          <button class="btn btn-gold" style="width:100%;" onclick="openModal('withdraw')">Process All Withdrawals</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SMS ════════════ -->
+  <div class="page" id="page-sms">
+    <div class="page-header">
+      <div><div class="ph-title">📱 SMS Campaigns</div><div class="ph-sub">Hubtel-powered automated SMS system</div></div>
+      <div class="ph-actions">
+        <button class="btn btn-outline btn-sm">📤 Export Logs</button>
+        <button class="btn btn-gold" onclick="openModal('sendSMS')">📤 Send SMS</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon-box" style="background:rgba(0,214,143,.1);">✅</div><div class="stat-label">Delivered</div><div class="stat-value" style="color:var(--green);font-size:26px;">1,284</div></div>
+      <div class="stat-card"><div class="stat-icon-box" style="background:rgba(255,71,87,.1);">❌</div><div class="stat-label">Failed</div><div class="stat-value" style="color:var(--red);font-size:26px;">14</div></div>
+      <div class="stat-card"><div class="stat-icon-box" style="background:rgba(255,200,61,.1);">⏳</div><div class="stat-label">Pending</div><div class="stat-value" style="color:var(--gold);font-size:26px;">7</div></div>
+      <div class="stat-card"><div class="stat-icon-box" style="background:rgba(77,124,254,.1);">📨</div><div class="stat-label">Total Sent</div><div class="stat-value" style="font-size:26px;">1,305</div></div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">SMS Automation Rules</div></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Registration Confirmation</div><div class="toggle-desc">Sent immediately after registration</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Payment Approval</div><div class="toggle-desc">When admin approves MoMo payment</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">1-Hour Pre-Tournament Reminder</div><div class="toggle-desc">60 minutes before Saturday 19:00 GMT</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Winner Announcements</div><div class="toggle-desc">Top 3 winners notified immediately</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Referral Commission Earned</div><div class="toggle-desc">When referral is approved and commission added</div></div><label class="toggle"><input type="checkbox"/><div class="toggle-slider"></div></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Failed Payment Alert</div><div class="toggle-desc">Notify participant of failed MoMo attempt</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">📋 SMS Activity Log</div></div>
+        <div id="sms-log"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ ANTI-CHEAT ════════════ -->
+  <div class="page" id="page-anticheat">
+    <div class="page-header">
+      <div><div class="ph-title">🛡️ Anti-Cheat System</div><div class="ph-sub">Server-side protection and violation tracking</div></div>
+      <div class="ph-actions">
+        <button class="btn btn-outline btn-sm">📋 Export Log</button>
+        <button class="btn btn-danger" onclick="openModal('clearFlags')">🗑 Clear All Flags</button>
+      </div>
+    </div>
+
+    <div class="al-danger alert"><span class="al-icon">🚨</span><div class="al-body"><div class="al-title">1 Player Disqualified This Session</div><div class="al-text">Multiple account violation detected — +233540012345. Account permanently banned. Payout withheld.</div></div></div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">🛡️ Active Protection Rules</div></div>
+        <div class="ac-rule"><div class="ac-rule-info"><div class="ac-rule-name">Multi-Tab Detection</div><div class="ac-rule-desc">Detect and flag browser tab switching during quiz</div></div><span class="badge badge-green">● Active</span></div>
+        <div class="ac-rule"><div class="ac-rule-info"><div class="ac-rule-name">Duplicate Account Check</div><div class="ac-rule-desc">Cross-reference phone + email + device fingerprint</div></div><span class="badge badge-green">● Active</span></div>
+        <div class="ac-rule"><div class="ac-rule-info"><div class="ac-rule-name">IP Address Tracking</div><div class="ac-rule-desc">Block same IP from multiple active sessions</div></div><span class="badge badge-green">● Active</span></div>
+        <div class="ac-rule"><div class="ac-rule-info"><div class="ac-rule-name">Answer Speed Analysis</div><div class="ac-rule-desc">Flag answers submitted under 0.5 seconds</div></div><span class="badge badge-green">● Active</span></div>
+        <div class="ac-rule"><div class="ac-rule-info"><div class="ac-rule-name">Server-Side Scoring Only</div><div class="ac-rule-desc">No client-side score manipulation possible</div></div><span class="badge badge-green">● Active</span></div>
+        <div class="ac-rule"><div class="ac-rule-info"><div class="ac-rule-name">Device Fingerprinting</div><div class="ac-rule-desc">Unique device ID tracking across sessions</div></div><span class="badge badge-green">● Active</span></div>
+        <div class="ac-rule"><div class="ac-rule-info"><div class="ac-rule-name">Reconnection Rate Limiting</div><div class="ac-rule-desc">Max 3 reconnections per quiz session</div></div><span class="badge badge-green">● Active</span></div>
+        <div class="ac-rule"><div class="ac-rule-info"><div class="ac-rule-name">VPN/Proxy Detection</div><div class="ac-rule-desc">Flag suspicious proxy/VPN connections</div></div><span class="badge badge-gold">⚠ Monitoring</span></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">⚠️ Current Violations</div><span class="badge badge-red">4 flags</span></div>
+        <div id="flag-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ AUDIT LOGS ════════════ -->
+  <div class="page" id="page-audit">
+    <div class="page-header">
+      <div><div class="ph-title">📋 Audit Logs</div><div class="ph-sub">Full system activity trail — immutable records</div></div>
+      <div class="ph-actions">
+        <button class="btn btn-outline btn-sm">📤 Export Logs</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">System Activity</div>
+        <div style="display:flex;gap:8px;">
+          <select class="form-input form-select" style="width:150px;font-size:12px;padding:7px 12px;"><option>All Actions</option><option>Payment</option><option>Question</option><option>Admin</option><option>Security</option></select>
+        </div>
+      </div>
+      <div id="audit-list"></div>
+    </div>
+  </div>
+
+  <!-- ════════════ ANALYTICS ════════════ -->
+  <div class="page" id="page-analytics">
+    <div class="page-header">
+      <div><div class="ph-title">📈 Analytics</div><div class="ph-sub">Lifetime performance insights</div></div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon-box" style="background:rgba(255,200,61,.1);">💰</div><div class="stat-label">Lifetime Revenue</div><div class="stat-value" style="color:var(--gold);font-size:22px;">GHS 61,240</div><div class="stat-meta"><span style="color:var(--text2);font-size:11px;">24 weeks running</span></div></div>
+      <div class="stat-card"><div class="stat-icon-box" style="background:rgba(0,214,143,.1);">👥</div><div class="stat-label">Total Unique Players</div><div class="stat-value" style="color:var(--green);font-size:22px;">1,847</div><div class="stat-meta"><span class="stat-change sc-up">▲ Growing</span></div></div>
+      <div class="stat-card"><div class="stat-icon-box" style="background:rgba(77,124,254,.1);">📊</div><div class="stat-label">Avg Conversion Rate</div><div class="stat-value" style="color:var(--blue);font-size:22px;">87.4%</div><div class="stat-meta"><span style="color:var(--text2);font-size:11px;">Registered → Paid</span></div></div>
+      <div class="stat-card"><div class="stat-icon-box" style="background:rgba(168,85,247,.1);">🔗</div><div class="stat-label">Referral Conversions</div><div class="stat-value" style="color:var(--purple);font-size:22px;">412</div><div class="stat-meta"><span class="stat-change sc-up">▲ +22 this week</span></div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Revenue by Payment Channel</div></div>
+        <div class="prog-wrap"><div class="prog-head"><span class="prog-label">📱 MTN MoMo</span><span class="prog-val">64% · GHS 3,085</span></div><div class="prog-bar"><div class="prog-fill fill-gold" style="width:64%"></div></div></div>
+        <div class="prog-wrap"><div class="prog-head"><span class="prog-label">📱 Vodafone Cash</span><span class="prog-val">21% · GHS 1,012</span></div><div class="prog-bar"><div class="prog-fill fill-blue" style="width:21%"></div></div></div>
+        <div class="prog-wrap"><div class="prog-head"><span class="prog-label">📱 AirtelTigo Money</span><span class="prog-val">15% · GHS 723</span></div><div class="prog-bar"><div class="prog-fill fill-purple" style="width:15%"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Players by Region (Ghana)</div></div>
+        <div class="prog-wrap"><div class="prog-head"><span class="prog-label">Greater Accra</span><span class="prog-val">38% · 701</span></div><div class="prog-bar"><div class="prog-fill fill-blue" style="width:38%"></div></div></div>
+        <div class="prog-wrap"><div class="prog-head"><span class="prog-label">Ashanti</span><span class="prog-val">29% · 536</span></div><div class="prog-bar"><div class="prog-fill fill-gold" style="width:29%"></div></div></div>
+        <div class="prog-wrap"><div class="prog-head"><span class="prog-label">Western</span><span class="prog-val">14% · 259</span></div><div class="prog-bar"><div class="prog-fill fill-green" style="width:14%"></div></div></div>
+        <div class="prog-wrap"><div class="prog-head"><span class="prog-label">Eastern</span><span class="prog-val">9% · 166</span></div><div class="prog-bar"><div class="prog-fill fill-orange" style="width:9%"></div></div></div>
+        <div class="prog-wrap"><div class="prog-head"><span class="prog-label">Other Regions</span><span class="prog-val">10% · 185</span></div><div class="prog-bar"><div class="prog-fill" style="width:10%;background:var(--muted)"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SETTINGS ════════════ -->
+  <div class="page" id="page-settings">
+    <div class="page-header">
+      <div><div class="ph-title">⚙️ Platform Settings</div><div class="ph-sub">Configure all QuizGH platform settings</div></div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'stab-hubtel')">Hubtel API</div>
+      <div class="tab" onclick="switchTab(this,'stab-general')">General</div>
+      <div class="tab" onclick="switchTab(this,'stab-security')">Security</div>
+      <div class="tab" onclick="switchTab(this,'stab-quiz')">Quiz Rules</div>
+      <div class="tab" onclick="switchTab(this,'stab-notif')">Notifications</div>
+      <div class="tab" onclick="switchTab(this,'stab-backup')">Backup & DB</div>
+    </div>
+    <div class="tab-pane active" id="stab-hubtel">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Hubtel API Credentials</div><span class="badge badge-green">● Connected</span></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Client ID</label><input class="form-input" value="hbt_live_xxxxxxxxxxxxxxxx" placeholder="HUBTEL_CLIENT_ID"/></div>
+          <div class="form-group"><label class="form-label">Client Secret</label><input class="form-input" type="password" value="••••••••••••••"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">SMS Sender ID</label><input class="form-input" value="QuizGH"/></div>
+          <div class="form-group"><label class="form-label">Webhook Callback URL</label><input class="form-input" value="https://quizgh.com/api/hubtel/callback"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Environment</label><select class="form-input form-select"><option>🟢 Production</option><option>🟡 Sandbox</option></select></div>
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="btn btn-primary">Save Credentials</button>
+          <button class="btn btn-outline">🔌 Test Connection</button>
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane" id="stab-general">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">General Settings</div></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Platform Name</label><input class="form-input" value="QuizGH"/></div>
+          <div class="form-group"><label class="form-label">Primary Currency</label><select class="form-input form-select"><option>GHS — Ghanaian Cedi</option><option>NGN — Nigerian Naira</option></select></div>
+        </div>
+        <div class="form-row3">
+          <div class="form-group"><label class="form-label">Regular Fee (GHS)</label><input class="form-input" type="number" value="20"/></div>
+          <div class="form-group"><label class="form-label">VIP Fee (GHS)</label><input class="form-input" type="number" value="50"/></div>
+          <div class="form-group"><label class="form-label">Elite Fee (GHS)</label><input class="form-input" type="number" value="100"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Reg Opens (Day)</label><select class="form-input form-select"><option>Monday 00:00 GMT</option></select></div>
+          <div class="form-group"><label class="form-label">Reg Closes (Day)</label><select class="form-input form-select"><option>Friday 18:00 GMT</option></select></div>
+        </div>
+        <div class="form-group"><label class="form-label">Tournament Start Time</label><input class="form-input" value="Saturday 19:00 GMT"/></div>
+        <button class="btn btn-primary">Save General Settings</button>
+      </div>
+    </div>
+    <div class="tab-pane" id="stab-security">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Security & Authentication</div></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">JWT Secret (auto-generated)</label><input class="form-input" type="password" value="••••••••••••••••••••••••••••"/></div>
+          <div class="form-group"><label class="form-label">JWT Expiry (hours)</label><input class="form-input" type="number" value="24"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Admin 2FA Method</label><select class="form-input form-select"><option>✅ SMS OTP via Hubtel</option><option>Authenticator App (TOTP)</option><option>Disabled</option></select></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Rate Limit (req/min)</label><input class="form-input" type="number" value="60"/></div>
+          <div class="form-group"><label class="form-label">Session Timeout (min)</label><input class="form-input" type="number" value="30"/></div>
+        </div>
+        <button class="btn btn-primary">Save Security Settings</button>
+      </div>
+    </div>
+    <div class="tab-pane" id="stab-quiz">
+      <div class="card">
+        <div class="card-hd"><div class="card-title">Quiz Engine Configuration</div></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Questions per Quiz</label><input class="form-input" type="number" value="15"/></div>
+          <div class="form-group"><label class="form-label">Default Time per Q (sec)</label><input class="form-input" type="number" value="30"/></div>
+        </div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Shuffle Question Order</div><div class="toggle-desc">Randomize questions for each participant</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Shuffle Answer Options</div><div class="toggle-desc">Randomize A/B/C/D order per question</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Speed Bonus Scoring</div><div class="toggle-desc">Faster answers earn more points</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Auto-submit on Timer Expiry</div><div class="toggle-desc">Auto-submit unanswered questions as wrong</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Show Explanation After Answer</div><div class="toggle-desc">Display correct answer explanation post-submit</div></div><label class="toggle"><input type="checkbox"/><div class="toggle-slider"></div></label></div>
+        <button class="btn btn-primary" style="margin-top:18px;">Save Quiz Settings</button>
+      </div>
+    </div>
+    <div class="tab-pane" id="stab-notif">
+      <div class="card"><div class="card-hd"><div class="card-title">Notification Preferences</div></div>
+        <div class="al-info alert"><span class="al-icon">ℹ️</span><div class="al-body"><div class="al-title">SMS via Hubtel is configured in the Hubtel API tab.</div><div class="al-text">Manage email notifications below.</div></div></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Admin Email Alerts</div><div class="toggle-desc">New payment, failed webhook, daily report</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+        <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Daily Revenue Summary Email</div><div class="toggle-desc">Sent every morning at 8:00 AM GMT</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+        <div class="form-group" style="margin-top:16px;"><label class="form-label">Admin Notification Email</label><input class="form-input" type="email" value="admin@quizgh.com"/></div>
+        <button class="btn btn-primary">Save Notification Settings</button>
+      </div>
+    </div>
+    <div class="tab-pane" id="stab-backup">
+      <div class="card"><div class="card-hd"><div class="card-title">Database & Backup</div></div>
+        <div class="al-success alert"><span class="al-icon">✅</span><div class="al-body"><div class="al-title">Last backup: Today 03:00 GMT</div><div class="al-text">PostgreSQL backup completed — 142MB — stored on Cloudflare R2</div></div></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Database Host</label><input class="form-input" value="db.quizgh.internal:5432" type="password"/></div>
+          <div class="form-group"><label class="form-label">Backup Frequency</label><select class="form-input form-select"><option>Daily at 03:00 GMT</option><option>Every 12 Hours</option><option>Hourly</option></select></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="btn btn-primary">Save Backup Settings</button>
+          <button class="btn btn-outline">🔄 Run Backup Now</button>
+          <button class="btn btn-outline">📥 Download Latest Backup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end main -->
+</div><!-- end app -->
+
+<!-- ══════════ MODALS ══════════ -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <!-- Add Question -->
+  <div class="modal modal-lg" id="modal-addQuestion" style="display:none;">
+    <div class="modal-title">Add New Question</div>
+    <div class="modal-sub">Add to question bank with versioning enabled</div>
+    <div class="form-group"><label class="form-label">Question Text</label><textarea class="form-input" rows="3" placeholder="Type question..."></textarea></div>
+    <div class="form-row3">
+      <div class="form-group"><label class="form-label">Category</label><select class="form-input form-select"><option>Ghana History</option><option>Geography</option><option>Science</option><option>Math</option><option>General Knowledge</option><option>Sport</option></select></div>
+      <div class="form-group"><label class="form-label">Difficulty</label><select class="form-input form-select"><option>Easy (100 pts)</option><option>Medium (150 pts)</option><option>Hard (200 pts)</option></select></div>
+      <div class="form-group"><label class="form-label">Time Limit (sec)</label><input class="form-input" type="number" value="30"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">🔴 Option A</label><input class="form-input" placeholder="Option A"/></div>
+      <div class="form-group"><label class="form-label">🔵 Option B</label><input class="form-input" placeholder="Option B"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">🟢 Option C</label><input class="form-input" placeholder="Option C"/></div>
+      <div class="form-group"><label class="form-label">🟡 Option D</label><input class="form-input" placeholder="Option D"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Correct Answer</label><select class="form-input form-select"><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+      <div class="form-group"><label class="form-label">Type</label><select class="form-input form-select"><option>Multiple Choice (MCQ)</option><option>True / False</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Explanation (shown after answer)</label><textarea class="form-input" rows="2" placeholder="Optional: explain the correct answer..."></textarea></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-gold">✅ Add Question</button></div>
+  </div>
+
+  <!-- Add Participant -->
+  <div class="modal" id="modal-addParticipant" style="display:none;">
+    <div class="modal-title">Register Participant</div>
+    <div class="modal-sub">Manually register with SMS verification</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" placeholder="Kofi Mensah"/></div>
+      <div class="form-group"><label class="form-label">Username</label><input class="form-input" placeholder="kofi_gh"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="kofi@email.com"/></div>
+      <div class="form-group"><label class="form-label">Phone (+233)</label><input class="form-input" placeholder="+233XXXXXXXXX"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Tournament Tier</label><select class="form-input form-select"><option>Regular — GHS 20</option><option>VIP — GHS 50</option><option>Elite — GHS 100</option></select></div>
+      <div class="form-group"><label class="form-label">Region</label><select class="form-input form-select"><option>Greater Accra</option><option>Ashanti</option><option>Western</option><option>Eastern</option><option>Northern</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Gender</label><select class="form-input form-select"><option>Male</option><option>Female</option><option>Other</option></select></div>
+      <div class="form-group"><label class="form-label">Date of Birth</label><input class="form-input" type="date"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Referral Code (if any)</label><input class="form-input" placeholder="QUIZGH-XXXXX"/></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-gold">📱 Register & Send SMS</button></div>
+  </div>
+
+  <!-- Send SMS -->
+  <div class="modal" id="modal-sendSMS" style="display:none;">
+    <div class="modal-title">Send SMS Campaign</div>
+    <div class="modal-sub">Sent via Hubtel API · Sender ID: QuizGH</div>
+    <div class="form-group"><label class="form-label">Recipients</label>
+      <select class="form-input form-select"><option>All Approved Participants (218)</option><option>Pending Payment (3)</option><option>VIP Tier Only (63)</option><option>Elite Tier Only (13)</option><option>All Week 23 Winners (3)</option><option>Custom Phone List</option></select></div>
+    <div class="form-group"><label class="form-label">Message Template</label>
+      <select class="form-input form-select" style="margin-bottom:10px;"><option>Tournament Reminder</option><option>Payment Approved</option><option>Winner Announcement</option><option>Custom Message</option></select>
+      <textarea class="form-input" rows="4">🎯 QuizGH Alert! Week 24 Tournament starts Saturday 19:00 GMT. Login at quizgh.com. Good luck! 🏆</textarea></div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px;background:rgba(255,255,255,.04);padding:10px 14px;border-radius:8px;">
+      📊 <strong>218 recipients</strong> · ~160 chars/SMS · Est. cost: <strong>GHS 4.36</strong>
+    </div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-gold">📤 Send via Hubtel</button></div>
+  </div>
+
+  <!-- Withdraw Modal -->
+  <div class="modal" id="modal-withdraw" style="display:none;">
+    <div class="modal-title">Process MoMo Withdrawals</div>
+    <div class="modal-sub">Referral commission payouts via Hubtel</div>
+    <div class="form-group"><label class="form-label">Total Pending (GHS)</label><input class="form-input" value="GHS 150.00" readonly style="opacity:.7;"/></div>
+    <div class="form-group"><label class="form-label">Payout Network</label><select class="form-input form-select"><option>MTN MoMo</option><option>Vodafone Cash</option><option>AirtelTigo Money</option></select></div>
+    <div class="al-warn alert"><span class="al-icon">⚠️</span><div class="al-body"><div class="al-title">Review Before Processing</div><div class="al-text">2 withdrawal requests totalling GHS 150. This cannot be undone.</div></div></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-gold">✅ Confirm & Pay via MoMo</button></div>
+  </div>
+
+  <!-- Payout Modal -->
+  <div class="modal" id="modal-initPayout" style="display:none;">
+    <div class="modal-title">💸 Initiate Winner Payouts</div>
+    <div class="modal-sub">Week 24 prize distribution via Hubtel MoMo</div>
+    <div style="font-size:13px;margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);"><span>🥇 1st · Kwame Asante · +233244001234</span><strong style="color:var(--gold)">GHS 1,687</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);"><span>🥈 2nd · Abena Boateng · +233201234567</span><strong style="color:#94a3b8">GHS 1,012</strong></div>
+      <div style="display:flex;justify-content:space-between;padding:12px 0;"><span>🥉 3rd · Kofi Mensah · +233277001234</span><strong style="color:#cd7f32">GHS 675</strong></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:12px 16px;background:rgba(255,200,61,.08);border-radius:10px;margin-bottom:20px;"><span style="font-weight:700;">Total Payout</span><strong style="color:var(--gold);font-family:'Nunito',sans-serif;font-size:20px;">GHS 3,374</strong></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-gold">💸 Pay All via Hubtel MoMo</button></div>
+  </div>
+
+  <!-- Tournament modal -->
+  <div class="modal" id="modal-addTournament" style="display:none;">
+    <div class="modal-title">Create Tournament Tier</div>
+    <div class="modal-sub">Configure new tournament tier settings</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Tier Name</label><input class="form-input" placeholder="e.g. Elite"/></div>
+      <div class="form-group"><label class="form-label">Entry Fee (GHS)</label><input class="form-input" type="number" placeholder="100"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Max Participants</label><input class="form-input" type="number" placeholder="50"/></div>
+      <div class="form-group"><label class="form-label">Prize % of Pool</label><input class="form-input" type="number" placeholder="70"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Questions per Quiz</label><input class="form-input" type="number" value="15"/></div>
+    <div class="form-group"><label class="form-label">Difficulty Mix</label>
+      <select class="form-input form-select"><option>Balanced (40% Easy, 40% Med, 20% Hard)</option><option>Challenging (20% Easy, 40% Med, 40% Hard)</option><option>Expert (10% Easy, 30% Med, 60% Hard)</option></select></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-gold">Create Tier</button></div>
+  </div>
+
+  <!-- Generic confirmation modals -->
+  <div class="modal" id="modal-pauseQuiz" style="display:none;">
+    <div class="modal-title">⏸ Pause Live Quiz?</div>
+    <div class="modal-sub">This will freeze timers for all active participants</div>
+    <div class="al-warn alert"><span class="al-icon">⚠️</span><div class="al-body"><div class="al-title">218 players are currently active</div><div class="al-text">All timers will pause. Players will see a "Quiz Paused" screen.</div></div></div>
+    <div class="form-group"><label class="form-label">Pause Reason (shown to players)</label><input class="form-input" placeholder="e.g. Brief technical interruption — back soon!"/></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-danger">⏸ Confirm Pause</button></div>
+  </div>
+  <div class="modal" id="modal-endQuiz" style="display:none;">
+    <div class="modal-title">🔚 End Quiz Early?</div>
+    <div class="modal-sub">This cannot be undone</div>
+    <div class="al-danger alert"><span class="al-icon">🚨</span><div class="al-body"><div class="al-title">Ending early will calculate prizes from current scores</div><div class="al-text">Players on question 3 of 15. Are you sure?</div></div></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Keep Going</button><button class="btn btn-danger">End & Calculate Prizes</button></div>
+  </div>
+  <div class="modal" id="modal-testHubtel" style="display:none;">
+    <div class="modal-title">🔌 Test Hubtel Connection</div>
+    <div class="modal-sub">Send test SMS via Hubtel API</div>
+    <div class="form-group"><label class="form-label">Test Phone Number (+233)</label><input class="form-input" placeholder="+233XXXXXXXXX"/></div>
+    <div class="al-success alert"><span class="al-icon">✅</span><div class="al-body"><div class="al-title">Last test: 2 hours ago — Successful</div><div class="al-text">Hubtel API responding. Webhook endpoint verified.</div></div></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Close</button><button class="btn btn-green">📱 Send Test SMS</button></div>
+  </div>
+  <div class="modal" id="modal-manualPayment" style="display:none;">
+    <div class="modal-title">Log Manual Payment</div>
+    <div class="modal-sub">For payments verified outside the system</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Participant Phone</label><input class="form-input" placeholder="+233XXXXXXXXX"/></div>
+      <div class="form-group"><label class="form-label">Amount (GHS)</label><input class="form-input" type="number" placeholder="20"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">MoMo Reference</label><input class="form-input" placeholder="TXN-XXXXXXXXX"/></div>
+      <div class="form-group"><label class="form-label">Tier</label><select class="form-input form-select"><option>Regular</option><option>VIP</option><option>Elite</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><input class="form-input" placeholder="Admin verification note..."/></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-gold">Log & Approve</button></div>
+  </div>
+  <div class="modal" id="modal-injectQ" style="display:none;">
+    <div class="modal-title">💉 Inject Question</div>
+    <div class="modal-sub">Add a question mid-quiz (emergency use only)</div>
+    <div class="form-group"><label class="form-label">Select from Bank</label><select class="form-input form-select"><option>Q042 — What year did Ghana gain independence?</option><option>Q017 — Name the longest river in Ghana</option><option>Q088 — What is the capital of Ashanti Region?</option></select></div>
+    <div class="form-group"><label class="form-label">Insert Position</label><select class="form-input form-select"><option>After current question (Q4)</option><option>At end of quiz</option></select></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-warn">💉 Inject Question</button></div>
+  </div>
+  <div class="modal" id="modal-announceWinners" style="display:none;">
+    <div class="modal-title">📢 Announce Winners</div>
+    <div class="modal-sub">Broadcast Week 23 results to all participants</div>
+    <div class="form-group"><label class="form-label">Announcement Channels</label></div>
+    <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">SMS to All Participants</div><div class="toggle-desc">Send via Hubtel to all 218 registered</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+    <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">SMS to Winners Only</div><div class="toggle-desc">Personalized prize notifications</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+    <div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Update Leaderboard Page</div><div class="toggle-desc">Publish results publicly</div></div><label class="toggle"><input type="checkbox" checked/><div class="toggle-slider"></div></label></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-gold">📢 Announce Winners</button></div>
+  </div>
+  <div class="modal" id="modal-clearFlags" style="display:none;">
+    <div class="modal-title">🗑 Clear All Flags?</div>
+    <div class="modal-sub">This will dismiss all current anti-cheat warnings</div>
+    <div class="al-warn alert"><span class="al-icon">⚠️</span><div class="al-body"><div class="al-title">4 flags will be cleared</div><div class="al-text">Records remain in audit log. Only active warnings are cleared.</div></div></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-danger">Clear All Flags</button></div>
+  </div>
+</div>
+
+<script>
+// ══════ DATA ══════
+const PLAYERS=[
+  {r:1,name:'Kwame Asante',user:'kwame_gh',phone:'+233244001234',region:'Ashanti',score:9840,tier:'Elite',color:'#f59e0b',status:'approved',joined:'Jan 15'},
+  {r:2,name:'Abena Boateng',user:'abena_b',phone:'+233201234567',region:'Greater Accra',score:9320,tier:'VIP',color:'#3b82f6',status:'approved',joined:'Feb 01'},
+  {r:3,name:'Kofi Mensah',user:'kofi_m',phone:'+233277001234',region:'Western',score:8760,tier:'Elite',color:'#10b981',status:'approved',joined:'Jan 28'},
+  {r:4,name:'Akua Owusu',user:'akua_ow',phone:'+233544001234',region:'Eastern',score:8240,tier:'Regular',color:'#ef4444',status:'approved',joined:'Feb 10'},
+  {r:5,name:'Yaw Darko',user:'yaw_d',phone:'+233208001234',region:'Brong-Ahafo',score:7980,tier:'VIP',color:'#a855f7',status:'approved',joined:'Feb 05'},
+  {r:6,name:'Efua Asante',user:'efua_a',phone:'+233240001234',region:'Northern',score:7650,tier:'Regular',color:'#f97316',status:'approved',joined:'Feb 12'},
+  {r:7,name:'Nana Ama',user:'nana_ama',phone:'+233270001234',region:'Greater Accra',score:7200,tier:'VIP',color:'#ec4899',status:'approved',joined:'Feb 18'},
+  {r:8,name:'Kwesi Boateng',user:'kwesi_b',phone:'+233277333444',region:'Ashanti',score:6900,tier:'Regular',color:'#06b6d4',status:'pending',joined:'Feb 22'},
+];
+
+const PAYMENTS=[
+  {ref:'TXN-20240224-001',name:'Kwame Asante',phone:'+233244001234',amt:'GHS 100',tier:'Elite',status:'approved',time:'2h ago',net:'MTN'},
+  {ref:'TXN-20240224-002',name:'Abena Boateng',phone:'+233201234567',amt:'GHS 50',tier:'VIP',status:'pending',time:'3h ago',net:'Vodafone'},
+  {ref:'TXN-20240224-003',name:'Kofi Mensah',phone:'+233277001234',amt:'GHS 20',tier:'Regular',status:'approved',time:'4h ago',net:'MTN'},
+  {ref:'TXN-20240224-004',name:'Akua Owusu',phone:'+233544001234',amt:'GHS 100',tier:'Elite',status:'pending',time:'5h ago',net:'AirtelTigo'},
+  {ref:'TXN-20240224-005',name:'Yaw Darko',phone:'+233208001234',amt:'GHS 50',tier:'VIP',status:'failed',time:'6h ago',net:'MTN'},
+  {ref:'TXN-20240224-006',name:'Efua Asante',phone:'+233240001234',amt:'GHS 20',tier:'Regular',status:'pending',time:'7h ago',net:'Vodafone'},
+  {ref:'TXN-20240224-007',name:'Nana Ama',phone:'+233270001234',amt:'GHS 50',tier:'VIP',status:'approved',time:'8h ago',net:'MTN'},
+];
+
+const QUESTIONS=[
+  {id:'Q001',text:'What is the capital city of Ghana?',cat:'Geography',diff:'Easy',type:'MCQ',pts:100,used:24,status:'active',author:'Admin',edited:'Jan 10'},
+  {id:'Q002',text:'Who was the first President of Ghana?',cat:'Ghana History',diff:'Easy',type:'MCQ',pts:100,used:22,status:'active',author:'Admin',edited:'Jan 11'},
+  {id:'Q003',text:'What is the currency of Ghana?',cat:'General',diff:'Easy',type:'MCQ',pts:100,used:20,status:'active',author:'Admin',edited:'Jan 12'},
+  {id:'Q004',text:'Which region is Kumasi located in?',cat:'Geography',diff:'Medium',type:'MCQ',pts:150,used:18,status:'active',author:'Moderator',edited:'Jan 15'},
+  {id:'Q005',text:'In what year did Ghana gain independence?',cat:'Ghana History',diff:'Medium',type:'MCQ',pts:150,used:24,status:'active',author:'Admin',edited:'Jan 16'},
+  {id:'Q006',text:'What is the largest lake in Ghana?',cat:'Geography',diff:'Hard',type:'MCQ',pts:200,used:16,status:'active',author:'Admin',edited:'Jan 20'},
+  {id:'Q007',text:'Name the national flower of Ghana',cat:'General',diff:'Hard',type:'MCQ',pts:200,used:10,status:'active',author:'Moderator',edited:'Feb 01'},
+];
+
+const REFS=[
+  {name:'Kofi Adu',user:'kofi_adu',phone:'+233244111222',tier:'VIP',date:'Feb 20',earned:'GHS 5',status:'approved'},
+  {name:'Ama Sarpong',user:'ama_s',phone:'+233201222333',tier:'Regular',date:'Feb 21',earned:'GHS 5',status:'approved'},
+  {name:'Kwesi Boateng',user:'kwesi_b',phone:'+233277333444',tier:'Elite',date:'Feb 22',earned:'GHS 5',status:'approved'},
+  {name:'Adwoa Mensah',user:'adwoa_m',phone:'+233540444555',tier:'Regular',date:'Feb 23',earned:'GHS 5',status:'pending'},
+];
+
+const SMS_LOGS=[
+  {to:'+233244001234',name:'Kwame Asante',msg:'Payment approved! Week 24 starts Sat 19:00 GMT 🎯',time:'Today 14:32',status:'d'},
+  {to:'+233201234567',name:'Abena Boateng',msg:'Registration confirmed! Pay GHS 50 to join Week 24.',time:'Today 13:15',status:'d'},
+  {to:'+233277001234',name:'Kofi Mensah',msg:'🏆 Week 23 Winner! GHS 1,012 paid to your MoMo. Congrats!',time:'Today 12:00',status:'d'},
+  {to:'+233544001234',name:'Akua Owusu',msg:'Tournament starts in 1 hour! Login at quizgh.com',time:'Today 18:00',status:'p'},
+  {to:'+233208001234',name:'Yaw Darko',msg:'Payment failed. Please retry via MTN MoMo or contact us.',time:'Today 10:45',status:'f'},
+  {to:'+233240001234',name:'Efua Asante',msg:'Welcome to QuizGH! Register for Week 24 now.',time:'Yesterday',status:'d'},
+];
+
+const FLAGS=[
+  {player:'kwame_99',reason:'Browser tab switched 2× during Q3',sev:'warn',time:'14:23',ip:'196.0.1.44'},
+  {player:'anon_player44',reason:'Multiple active IPs detected (2 sessions)',sev:'danger',time:'14:31',ip:'196.0.2.88'},
+  {player:'user_2201',reason:'Suspiciously fast answer: 0.2s on Q2',sev:'warn',time:'14:45',ip:'154.0.5.12'},
+  {player:'ghost_quiz7',reason:'Device fingerprint matches banned account',sev:'danger',time:'14:52',ip:'196.0.3.21'},
+];
+
+const AUDITS=[
+  {icon:'💳',action:'Payment approved: TXN-20240224-001 — GHS 100 (Kwame Asante)',user:'Super Admin',time:'2h ago',color:'rgba(0,214,143,.1)'},
+  {icon:'❓',action:'Question Q006 edited: "Largest lake in Ghana"',user:'Moderator',time:'3h ago',color:'rgba(77,124,254,.1)'},
+  {icon:'📱',action:'SMS campaign sent to 218 participants — 98.7% delivered',user:'System',time:'4h ago',color:'rgba(168,85,247,.1)'},
+  {icon:'🚨',action:'Player ghost_quiz7 disqualified — banned account fingerprint',user:'Anti-Cheat AI',time:'5h ago',color:'rgba(255,71,87,.1)'},
+  {icon:'⚙️',action:'Hubtel API credentials updated by Super Admin',user:'Super Admin',time:'6h ago',color:'rgba(255,200,61,.1)'},
+  {icon:'🏆',action:'Week 23 tournament ended — prizes calculated automatically',user:'System',time:'7 days ago',color:'rgba(0,214,143,.1)'},
+  {icon:'💸',action:'Payout initiated: GHS 3,200 to 3 winners via Hubtel MoMo',user:'Super Admin',time:'7 days ago',color:'rgba(255,200,61,.1)'},
+];
+
+const NOTIFS=[
+  {icon:'💳',msg:'New MoMo payment pending: Abena Boateng — GHS 50',time:'3 mins ago',unread:true,color:'rgba(0,214,143,.1)'},
+  {icon:'⚠️',msg:'Anti-cheat: anon_player44 flagged for dual IP',time:'14 mins ago',unread:true,color:'rgba(255,200,61,.1)'},
+  {icon:'📢',msg:'Week 23 results ready to announce',time:'1 hour ago',unread:true,color:'rgba(77,124,254,.1)'},
+  {icon:'✅',msg:'SMS campaign delivered: 98.7% success rate',time:'4 hours ago',unread:false,color:'rgba(0,214,143,.1)'},
+  {icon:'📊',msg:'Daily revenue report: GHS 4,820 collected this week',time:'8 hours ago',unread:false,color:'rgba(168,85,247,.1)'},
+];
+
+const CHART_DATA=[
+  {w:'W17',rev:3200,prize:2240},{w:'W18',rev:3800,prize:2660},{w:'W19',rev:2900,prize:2030},
+  {w:'W20',rev:4100,prize:2870},{w:'W21',rev:4500,prize:3150},{w:'W22',rev:3700,prize:2590},
+  {w:'W23',rev:4300,prize:3010},{w:'W24',rev:4820,prize:3374}
+];
+
+// ══════ NAVIGATION ══════
+const PAGE_META={
+  dashboard:{title:'Dashboard',bc:'QuizGH Admin / Overview'},
+  tournament:{title:'Tournaments',bc:'Admin / Tournaments'},
+  live:{title:'Live Quiz Engine',bc:'Admin / Live Quiz'},
+  participants:{title:'Participants',bc:'Admin / Participants'},
+  payments:{title:'Payments & MoMo',bc:'Admin / Payments'},
+  questions:{title:'Question Bank',bc:'Admin / Questions'},
+  prizes:{title:'Prize Pool',bc:'Admin / Prizes'},
+  referral:{title:'Referral System',bc:'Admin / Referrals'},
+  sms:{title:'SMS Campaigns',bc:'Admin / SMS'},
+  anticheat:{title:'Anti-Cheat System',bc:'Admin / Security'},
+  audit:{title:'Audit Logs',bc:'Admin / Audit'},
+  analytics:{title:'Analytics',bc:'Admin / Analytics'},
+  settings:{title:'Settings',bc:'Admin / Settings'},
+};
+
+function navigate(page,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+page);
+  if(pg)pg.classList.add('active');
+  if(el)el.classList.add('active');
+  else{
+    document.querySelectorAll('.nav-item').forEach(n=>{
+      if(n.onclick&&n.onclick.toString().includes("'"+page+"'"))n.classList.add('active');
+    });
+  }
+  const m=PAGE_META[page]||{title:page,bc:'Admin / '+page};
+  document.getElementById('pageTitle').textContent=m.title;
+  document.getElementById('breadcrumb').textContent=m.bc;
+  document.getElementById('notifPanel').classList.remove('open');
+}
+
+// ══════ MODALS ══════
+function openModal(id){
+  document.getElementById('overlay').classList.add('open');
+  document.querySelectorAll('.modal').forEach(m=>m.style.display='none');
+  const m=document.getElementById('modal-'+id);
+  if(m)m.style.display='block';
+}
+function closeModal(e){
+  if(!e||e.target===document.getElementById('overlay')){
+    document.getElementById('overlay').classList.remove('open');
+    document.querySelectorAll('.modal').forEach(m=>m.style.display='none');
+  }
+}
+
+// ══════ TABS ══════
+function switchTab(el,paneId){
+  const cont=el.closest('.page')||document;
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  cont.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  const pane=document.getElementById(paneId);
+  if(pane)pane.classList.add('active');
+}
+
+// ══════ NOTIFICATIONS ══════
+function toggleNotif(){document.getElementById('notifPanel').classList.toggle('open');}
+document.addEventListener('click',e=>{
+  const nb=document.getElementById('notifBtn'),np=document.getElementById('notifPanel');
+  if(!nb.contains(e.target)&&!np.contains(e.target))np.classList.remove('open');
+});
+
+// ══════ QUIZ ══════
+function pickAnswer(el,correct){
+  document.querySelectorAll('.kh-btn').forEach(b=>{b.onclick=null;});
+  setTimeout(()=>{
+    document.querySelectorAll('.kh-btn').forEach(b=>{
+      if(b===el&&correct)b.classList.add('correct');
+      else if(b===el)b.classList.add('wrong');
+      else b.classList.add('wrong');
+    });
+  },300);
+}
+
+// ══════ HELPERS ══════
+function tierBadge(t){
+  const map={Elite:'badge-gold',VIP:'badge-blue',Regular:'badge-green'};
+  return `<span class="badge ${map[t]||'badge-muted'}">${t}</span>`;
+}
+function statusBadge(s){
+  const map={approved:'badge-green',pending:'badge-gold',failed:'badge-red',banned:'badge-red'};
+  const icons={approved:'✓',pending:'⏳',failed:'✗',banned:'🚫'};
+  return `<span class="badge ${map[s]||'badge-muted'}">${icons[s]||''} ${s}</span>`;
+}
+function diffBadge(d){
+  const map={Easy:'badge-green',Medium:'badge-gold',Hard:'badge-red'};
+  return `<span class="badge ${map[d]}">${d}</span>`;
+}
+
+// ══════ RENDER FUNCTIONS ══════
+function renderDashboard(){
+  // Short leaderboard
+  const lb=document.getElementById('dash-lb');
+  if(lb)lb.innerHTML=PLAYERS.slice(0,5).map(p=>`
+    <div class="lb-item">
+      <div class="lb-rank ${p.r===1?'rank-1':p.r===2?'rank-2':p.r===3?'rank-3':''}">${p.r===1?'🥇':p.r===2?'🥈':p.r===3?'🥉':'#'+p.r}</div>
+      <div class="lb-av" style="background:${p.color}">${p.name[0]}</div>
+      <div class="lb-info"><div class="lb-name">${p.name}</div><div class="lb-sub">${p.user} · ${p.tier}</div></div>
+      <div style="text-align:right;"><div class="lb-score">${p.score.toLocaleString()}</div><div class="lb-prize">${p.r<=3?['GHS 1,687','GHS 1,012','GHS 675'][p.r-1]:'—'}</div></div>
+    </div>`).join('');
+
+  // Activity
+  const act=document.getElementById('dash-activity');
+  if(act)act.innerHTML=PAYMENTS.slice(0,5).map(p=>`
+    <div class="act-item">
+      <div class="act-icon" style="background:${p.status==='approved'?'rgba(0,214,143,.1)':p.status==='pending'?'rgba(255,200,61,.1)':'rgba(255,71,87,.1)'};">${p.status==='approved'?'✅':p.status==='pending'?'⏳':'❌'}</div>
+      <div class="act-info"><div class="act-name">${p.name} — ${p.tier}</div><div class="act-time">${p.ref} · ${p.time}</div></div>
+      <div class="act-amt" style="color:${p.status==='approved'?'var(--green)':p.status==='pending'?'var(--gold)':'var(--red)'}">${p.amt}</div>
+    </div>`).join('');
+
+  // Chart
+  const chart=document.getElementById('dash-chart');
+  const labels=document.getElementById('dash-chart-labels');
+  if(chart){
+    const max=Math.max(...CHART_DATA.map(d=>d.rev));
+    chart.innerHTML=CHART_DATA.map(d=>`
+      <div class="chart-bar-group">
+        <div class="chart-bar bar-rev" style="height:${Math.round((d.rev/max)*130)}px"></div>
+        <div class="chart-bar bar-prize" style="height:${Math.round((d.prize/max)*130)}px"></div>
+      </div>`).join('');
+    if(labels)labels.innerHTML=CHART_DATA.map(d=>`<div class="chart-lbl">${d.w}</div>`).join('');
+  }
+}
+
+function renderTournament(){
+  // Podium
+  const pod=document.getElementById('tour-podium');
+  if(pod){
+    const order=[PLAYERS[1],PLAYERS[0],PLAYERS[2]];
+    const cls=['pod2','pod1','pod3'];
+    const prizes=['GHS 1,012','GHS 1,687','GHS 675'];
+    const emojis=['🥈','🥇','🥉'];
+    pod.innerHTML=order.map((p,i)=>`
+      <div class="pod ${cls[i]}">
+        <div class="pod-emoji">${emojis[i]}</div>
+        <div class="pod-av" style="background:${p.color}">${p.name[0]}</div>
+        <div class="pod-name">${p.name}</div>
+        <div class="pod-pts">${p.score.toLocaleString()} pts</div>
+        <div class="pod-prize">${prizes[i]}</div>
+        <div class="pod-block"></div>
+      </div>`).join('');
+  }
+  // Full leaderboard table
+  const tbl=document.getElementById('full-lb-table');
+  if(tbl)tbl.innerHTML=`<thead><tr><th>Rank</th><th>Player</th><th>Region</th><th>Tier</th><th>Score</th><th>Prize</th><th>Status</th><th>Actions</th></tr></thead><tbody>`+
+    PLAYERS.map(p=>`<tr>
+      <td class="lb-rank ${p.r<=3?'rank-'+p.r:''}">${p.r<=3?['🥇','🥈','🥉'][p.r-1]:'#'+p.r}</td>
+      <td><div class="td-name">${p.name}</div><div class="td-mono">${p.user}</div></td>
+      <td>${p.region}</td>
+      <td>${tierBadge(p.tier)}</td>
+      <td><strong>${p.score.toLocaleString()}</strong></td>
+      <td style="color:var(--gold);font-weight:800;">${p.r<=3?['GHS 1,687','GHS 1,012','GHS 675'][p.r-1]:'—'}</td>
+      <td>${statusBadge(p.status)}</td>
+      <td class="td-action"><button class="btn btn-xs btn-outline">View</button><button class="btn btn-xs btn-danger">DQ</button></td>
+    </tr>`).join('')+'</tbody>';
+}
+
+function renderParticipants(){
+  const tbl=document.getElementById('participants-tbl');
+  if(!tbl)return;
+  tbl.innerHTML=`<thead><tr><th>Participant</th><th>Phone</th><th>Tier</th><th>Region</th><th>Joined</th><th>Payment</th><th>Score</th><th>Actions</th></tr></thead><tbody>`+
+    PLAYERS.map(p=>`<tr>
+      <td><div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;border-radius:9px;background:${p.color};display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;">${p.name[0]}</div><div><div class="td-name">${p.name}</div><div class="td-mono">${p.user}</div></div></div></td>
+      <td class="td-mono">${p.phone}</td>
+      <td>${tierBadge(p.tier)}</td>
+      <td>${p.region}</td>
+      <td class="td-mono">${p.joined}</td>
+      <td>${statusBadge(p.status)}</td>
+      <td><strong>${p.score.toLocaleString()}</strong></td>
+      <td class="td-action"><button class="btn btn-xs btn-outline">View</button><button class="btn btn-xs btn-warn">Warn</button><button class="btn btn-xs btn-danger">Ban</button></td>
+    </tr>`).join('')+'</tbody>';
+}
+
+function renderPayments(){
+  const pending=document.getElementById('pending-list');
+  if(pending)pending.innerHTML=PAYMENTS.filter(p=>p.status==='pending').map(p=>`
+    <div class="act-item" style="background:rgba(255,200,61,.04);border:1px solid rgba(255,200,61,.1);border-radius:12px;padding:12px;margin-bottom:8px;">
+      <div class="act-icon" style="background:rgba(255,200,61,.1);">💳</div>
+      <div class="act-info">
+        <div class="act-name">${p.name} — <strong>${p.amt}</strong></div>
+        <div class="act-time">${p.ref} · ${p.net} · ${p.time}</div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-green btn-xs">✓</button>
+        <button class="btn btn-danger btn-xs">✗</button>
+      </div>
+    </div>`).join('');
+
+  const tbl=document.getElementById('all-pmts');
+  if(tbl)tbl.innerHTML=`<thead><tr><th>Reference</th><th>Participant</th><th>Phone</th><th>Amount</th><th>Tier</th><th>Network</th><th>Status</th><th>Time</th><th>Action</th></tr></thead><tbody>`+
+    PAYMENTS.map(p=>`<tr>
+      <td class="td-mono">${p.ref}</td>
+      <td class="td-name">${p.name}</td>
+      <td class="td-mono">${p.phone}</td>
+      <td><strong>${p.amt}</strong></td>
+      <td>${tierBadge(p.tier)}</td>
+      <td><span class="badge badge-muted">${p.net}</span></td>
+      <td>${statusBadge(p.status)}</td>
+      <td style="color:var(--text2);font-size:12px;">${p.time}</td>
+      <td class="td-action">${p.status==='pending'?`<button class="btn btn-green btn-xs">✓ Approve</button><button class="btn btn-danger btn-xs">✗</button>`:`<button class="btn btn-outline btn-xs">View</button>`}</td>
+    </tr>`).join('')+'</tbody>';
+}
+
+function renderQuestions(){
+  const tbl=document.getElementById('questions-tbl');
+  if(!tbl)return;
+  tbl.innerHTML=`<thead><tr><th>ID</th><th>Question</th><th>Category</th><th>Difficulty</th><th>Points</th><th>Used</th><th>Author</th><th>Status</th><th>Actions</th></tr></thead><tbody>`+
+    QUESTIONS.map(q=>`<tr>
+      <td class="td-mono">${q.id}</td>
+      <td style="max-width:220px;"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${q.text}</div></td>
+      <td><span class="badge badge-cyan">${q.cat}</span></td>
+      <td>${diffBadge(q.diff)}</td>
+      <td><strong>${q.pts}</strong></td>
+      <td style="color:var(--text2);">${q.used}×</td>
+      <td class="td-mono">${q.author}</td>
+      <td>${statusBadge(q.status)}</td>
+      <td class="td-action"><button class="btn btn-xs btn-outline">Edit</button><button class="btn btn-xs btn-warn">Archive</button><button class="btn btn-xs btn-danger">Delete</button></td>
+    </tr>`).join('')+'</tbody>';
+}
+
+function renderLiveLB(){
+  const lb=document.getElementById('live-lb');
+  if(!lb)return;
+  lb.innerHTML=PLAYERS.slice(0,6).map((p,i)=>`
+    <div class="lb-item">
+      <div class="lb-rank ${i<3?'rank-'+(i+1):''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</div>
+      <div class="lb-av" style="background:${p.color}">${p.name[0]}</div>
+      <div class="lb-info"><div class="lb-name">${p.name}</div><div class="lb-sub">Q3 answered ✓</div></div>
+      <div class="lb-score">${(p.score-Math.floor(Math.random()*500)).toLocaleString()}</div>
+    </div>`).join('');
+}
+
+function renderReferrals(){
+  const tbl=document.getElementById('ref-tbl');
+  if(!tbl)return;
+  tbl.innerHTML=`<thead><tr><th>Name</th><th>Username</th><th>Phone</th><th>Tier</th><th>Date</th><th>Commission</th><th>Status</th></tr></thead><tbody>`+
+    REFS.map(r=>`<tr>
+      <td class="td-name">${r.name}</td>
+      <td class="td-mono">${r.user}</td>
+      <td class="td-mono">${r.phone}</td>
+      <td>${tierBadge(r.tier)}</td>
+      <td>${r.date}</td>
+      <td style="color:var(--gold);font-weight:700;">${r.earned}</td>
+      <td>${statusBadge(r.status)}</td>
+    </tr>`).join('')+'</tbody>';
+}
+
+function renderSMS(){
+  const log=document.getElementById('sms-log');
+  if(!log)return;
+  log.innerHTML=SMS_LOGS.map(s=>`
+    <div class="sms-item">
+      <div class="sms-dot ${s.status==='d'?'sms-d':s.status==='f'?'sms-f':'sms-p'}"></div>
+      <div class="sms-body">
+        <div class="sms-head">
+          <div class="sms-to">${s.name} <span class="td-mono">${s.to}</span></div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="badge ${s.status==='d'?'badge-green':s.status==='f'?'badge-red':'badge-gold'}">${s.status==='d'?'Delivered':s.status==='f'?'Failed':'Pending'}</span>
+            <span class="sms-time">${s.time}</span>
+          </div>
+        </div>
+        <div class="sms-text">${s.msg}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderFlags(){
+  const fl=document.getElementById('flag-list');
+  if(!fl)return;
+  fl.innerHTML=FLAGS.map(f=>`
+    <div class="flag-item">
+      <div class="flag-icon">${f.sev==='danger'?'🚨':'⚠️'}</div>
+      <div class="flag-info">
+        <div class="flag-player">@${f.player}</div>
+        <div class="flag-reason">${f.reason}</div>
+        <div class="flag-meta">IP: ${f.ip} · ${f.time}</div>
+      </div>
+      <div class="flag-actions">
+        <button class="btn btn-xs btn-warn">Warn</button>
+        <button class="btn btn-xs btn-danger">DQ</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderAudit(){
+  const al=document.getElementById('audit-list');
+  if(!al)return;
+  al.innerHTML=AUDITS.map(a=>`
+    <div class="audit-item">
+      <div class="audit-icon" style="background:${a.color}">${a.icon}</div>
+      <div class="audit-body">
+        <div class="audit-action">${a.action}</div>
+        <div style="display:flex;gap:12px;margin-top:3px;"><div class="audit-user">👤 ${a.user}</div><div class="audit-meta">🕐 ${a.time}</div></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderNotifs(){
+  const nl=document.getElementById('notif-list');
+  if(!nl)return;
+  nl.innerHTML=NOTIFS.map(n=>`
+    <div class="notif-item ${n.unread?'unread':''}">
+      <div class="notif-av" style="background:${n.color}">${n.icon}</div>
+      <div class="notif-body"><div class="notif-msg">${n.msg}</div><div class="notif-time">${n.time}</div></div>
+      ${n.unread?'<div class="notif-unread-dot"></div>':''}
+    </div>`).join('');
+}
+
+// ══════ COUNTDOWN ══════
+function updateCountdown(){
+  const now=new Date();
+  const next=new Date();
+  const dayOfWeek=now.getDay();
+  const daysUntilSat=(6-dayOfWeek+7)%7||7;
+  next.setDate(now.getDate()+daysUntilSat);
+  next.setHours(19,0,0,0);
+  const diff=next-now;
+  const d=Math.floor(diff/86400000);
+  const h=Math.floor((diff%86400000)/3600000);
+  const m=Math.floor((diff%3600000)/60000);
+  const s=Math.floor((diff%60000)/1000);
+  const pad=n=>String(n).padStart(2,'0');
+  ['d','h','m','s'].forEach((k,i)=>{
+    const el=document.getElementById('cd-'+k);
+    if(el)el.textContent=pad([d,h,m,s][i]);
+  });
+}
+
+// ══════ QUIZ TIMER ══════
+let qTime=25;
+let qInterval;
+function startQuizTimer(){
+  clearInterval(qInterval);
+  qTime=30;
+  qInterval=setInterval(()=>{
+    qTime=Math.max(0,qTime-1);
+    const el=document.getElementById('liveTimer');
+    if(el){el.textContent=qTime;el.style.color=qTime<10?'var(--red)':'var(--gold)';}
+    if(qTime===0)clearInterval(qInterval);
+  },1000);
+}
+
+// ══════ INIT ══════
+window.addEventListener('DOMContentLoaded',()=>{
+  renderDashboard();
+  renderTournament();
+  renderParticipants();
+  renderPayments();
+  renderQuestions();
+  renderLiveLB();
+  renderReferrals();
+  renderSMS();
+  renderFlags();
+  renderAudit();
+  renderNotifs();
+  updateCountdown();
+  setInterval(updateCountdown,1000);
+  startQuizTimer();
+  // Re-render chart after layout
+  setTimeout(renderDashboard,120);
+});
+</script>
+</body>
+</html>
